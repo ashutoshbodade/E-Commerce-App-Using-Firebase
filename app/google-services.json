@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1079276411599",
+    "firebase_url": "https://mobile-guru-shop.firebaseio.com",
+    "project_id": "mobile-guru-shop",
+    "storage_bucket": "mobile-guru-shop.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1079276411599:android:b630bb8f60598c90f835ba",
+        "android_client_info": {
+          "package_name": "com.octalgroup.mobilegurushop"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1079276411599-crcjno8prtghdma4e00a7t4ro3j9ab9u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.octalgroup.mobilegurushop",
+            "certificate_hash": "d4c79b173ee49574f37c215eea29a129aa77a7a9"
+          }
+        },
+        {
+          "client_id": "1079276411599-r6qbeci42vrutn4c820uo8caac8pbhb9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPPjqSLmuZafrvIfUs6_KiNNmnaT77H5k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1079276411599-r6qbeci42vrutn4c820uo8caac8pbhb9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

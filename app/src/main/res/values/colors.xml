@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#6ab04c</color>
+    <color name="colorPrimaryDark">#498032</color>
+    <color name="colorPrimaryDarkNew">#3F6C2C</color>
+    <color name="colorAccent">#f0932b</color>
+    <color name="white">#ffffff</color>
+    <color name="grey">#433F40</color>
+
+    <color name="colorPrimarya">#cd6133</color>
+    <color name="colorPrimaryDarka">#984927</color>
+    <color name="colorPrimaryDarkNewa">#602E18</color>
+    <color name="colorAccenta">#f0932b</color>
+</resources>

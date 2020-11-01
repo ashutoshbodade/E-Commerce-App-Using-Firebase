@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".HomeActivity">
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/rvTypesProgressBar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:lottie_loop="true"
+        android:visibility="gone"
+        app:lottie_autoPlay="true"
+        app:lottie_rawRes="@raw/wave"/>
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/close"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_350sdp"
+        app:lottie_loop="true"
+        app:lottie_autoPlay="true"
+        app:lottie_rawRes="@raw/close"/>
+
+    <TextView
+        android:visibility="gone"
+        android:id="@+id/closednotice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/_120sdp"
+        android:text="Restaurant is Closed Now \n Check back Tommorow"
+        android:textAlignment="center"
+        android:textColor="@color/colorPrimary" />
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    android:layout_width="match_parent"
+    android:id="@+id/viewhome"
+
+    android:layout_height="match_parent">
+
+    <include layout="@layout/content_home" />
+
+    <com.andremion.counterfab.CounterFab
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+       android:layout_marginEnd="@dimen/_10sdp"
+        android:layout_marginBottom="@dimen/_50sdp"
+        android:clickable="true"
+        android:tint="@android:color/white"
+        app:srcCompat="@drawable/ic_add_shopping_cart_black_24dp"
+        tools:ignore="VectorDrawableCompat" />
+    <Button
+        android:layout_margin="@dimen/_5sdp"
+        android:id="@+id/btnOrders"
+        android:background="@drawable/bgbutton"
+        android:layout_gravity="bottom"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_40sdp"
+        android:text="View Orders" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:aandroid="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/viewitems"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardElevation="2dp"
+        app:cardCornerRadius="6dp"
+        android:layout_margin="7dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_below="@id/viewStatusDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginRight="@dimen/_10sdp"
+                android:layout_marginLeft="@dimen/_10sdp"
+                android:layout_marginTop="@dimen/_5sdp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:textColor="@color/grey"
+                        android:id="@+id/txtOrderId"
+                        android:textSize="@dimen/_13sdp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingRight="@dimen/_4sdp"
+                        android:text="1" />
+
+                    <TextView
+                        android:textColor="@color/grey"
+                        android:textAlignment="textEnd"
+                        android:id="@+id/txtTotalPrice"
+                        android:textSize="@dimen/_13sdp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="200 rs"/>
+                </LinearLayout>
+
+
+
+
+
+            </LinearLayout>
+
+
+
+        <ProgressBar
+            android:layout_marginRight="@dimen/_10sdp"
+            android:layout_marginLeft="@dimen/_10sdp"
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="100"
+            />
+
+        <LinearLayout
+            android:id="@+id/viewStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="4"
+            android:layout_marginRight="@dimen/_10sdp"
+            android:layout_marginLeft="@dimen/_10sdp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/txtStatusBooked"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:text="Booked"/>
+                <TextView
+                    android:id="@+id/txtOrderDate"
+                    android:visibility="invisible"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:lines="2"
+                    android:textAlignment="center"
+                    android:textSize="@dimen/_8sdp"
+                    android:text="01/01/2020" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/txtStatusConfirmed"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Confirmed"
+                    android:textAlignment="center" />
+                <TextView
+                    android:id="@+id/txtConfirmedDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="@dimen/_8sdp"
+                    android:lines="2"
+                    android:visibility="invisible"
+                    android:text="01/01/2020"
+                    android:textAlignment="center" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/txtStatusInTransit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="In Transit"
+                    android:textAlignment="center" />
+                <TextView
+                    android:id="@+id/txtInTransitDate"
+                    android:visibility="invisible"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="01/01/2020"
+                    android:lines="2"
+                    android:textSize="@dimen/_8sdp"
+                    android:textAlignment="center" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/txtStatusDelivered"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAlignment="center"
+                    android:text="Delivered" />
+                <TextView
+                    android:visibility="invisible"
+                    android:textSize="@dimen/_8sdp"
+                    android:id="@+id/txtDeliveredDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:lines="2"
+                    android:textAlignment="center"
+                    android:text="01/01/2020"/>
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/viewStatusDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:layout_marginTop="@dimen/_3sdp"
+            android:layout_marginBottom="@dimen/_3sdp"
+            android:layout_marginRight="@dimen/_10sdp"
+            android:layout_marginLeft="@dimen/_10sdp">
+            <TextView
+                android:visibility="gone"
+                android:layout_gravity="center"
+                android:id="@+id/txtOrderStatus"
+                android:textSize="@dimen/_14sdp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Confirmed"
+                android:textAlignment="center" />
+
+            <TextView
+                android:id="@+id/txtOrderStatusOther"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:textSize="@dimen/_14sdp"
+                android:text="Confirmed"
+                android:visibility="gone"
+                android:textAlignment="center" />
+            <TextView
+                android:layout_weight="1"
+                android:id="@+id/txtOrderStatusNext"
+                android:textSize="@dimen/_15sdp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Oackaging Vegetables"
+                android:textAlignment="center" />
+        </LinearLayout>
+
+            <TableLayout
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/dropdown">
+
+                <TableRow
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" >
+
+                    <TextView
+                        android:textAlignment="center"
+                        android:paddingLeft="@dimen/_10sdp"
+                        android:layout_width="@dimen/_250sdp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_3sdp"
+                        android:layout_marginBottom="@dimen/_1sdp"
+                        android:textColor="#9F9C9C"
+                        android:text="Click to View Ordered Products"
+                        android:textSize="@dimen/_16sdp" />
+
+                    <ImageView
+                        android:id="@+id/dropdownup"
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/_24sdp"
+                        android:layout_gravity="right"
+                        android:visibility="visible"
+                        app:srcCompat="@drawable/ic_arrow_drop_down_black_24dp"
+                        aandroid:ignore="VectorDrawableCompat" />
+
+                    <ImageView
+                        android:id="@+id/dropdowndown"
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/_24sdp"
+                        android:layout_gravity="right"
+                        android:visibility="gone"
+                        app:srcCompat="@drawable/ic_arrow_drop_up_black_24dp"
+                        aandroid:ignore="VectorDrawableCompat" />
+                </TableRow>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_1sdp"
+                    android:layout_marginLeft="@dimen/_10sdp"
+                    android:layout_marginRight="@dimen/_10sdp"
+                    android:background="@android:color/darker_gray"/>
+            </TableLayout>
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:id="@+id/rvOrdersProducts"
+                android:visibility="gone"/>
+            <LinearLayout
+                android:layout_margin="@dimen/_3sdp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_marginLeft="@dimen/_8sdp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_location"/>
+                <TextView
+                    android:textColor="@color/grey"
+                    android:layout_gravity="center"
+                    android:id="@+id/txtDeliveryType"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:textSize="@dimen/_13sdp"
+                    android:paddingRight="@dimen/_3sdp"
+                    android:text="Pickup at "
+                    android:textAlignment="viewEnd"
+                    />
+
+                <TextView
+                    android:textColor="@color/grey"
+                    android:layout_gravity="center"
+                    android:id="@+id/txtDeliveryAddress"
+                    android:layout_width="wrap_content"
+                    android:textSize="@dimen/_13sdp"
+                    android:layout_height="wrap_content"
+                    android:text="Akola" />
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/viewPayment"
+                android:layout_below="@id/viewStatusDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginRight="@dimen/_10sdp"
+                android:layout_marginLeft="@dimen/_10sdp"
+                android:layout_marginBottom="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_5sdp">
+                <TextView
+                    android:visibility="gone"
+                    android:id="@+id/txtPaymentMode"
+                    android:textSize="@dimen/_14sdp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="#2ecc71"
+                    android:text="Gpay" />
+                <TextView
+                    android:visibility="gone"
+                    android:id="@+id/txtPaymentStatus"
+                    android:textSize="@dimen/_14sdp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Paid"
+                    android:textColor="#2ecc71"
+                    android:textAlignment="center" />
+
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</RelativeLayout>
