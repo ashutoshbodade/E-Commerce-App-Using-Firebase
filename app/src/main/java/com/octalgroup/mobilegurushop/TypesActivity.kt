@@ -31,89 +31,28 @@ class TypesActivity : AppCompatActivity() {
        val name =  bundle!!.getString("name")
         val title =  bundle.getString("title")
         this.setTitle(title)
-        cartDataSource = LocalCartDataSource(CartDatabase.getInstance(this).cartDAO())
 
-        if(name=="train"){
+
+
             val docRefs = db.collection("users").document(userid())
             docRefs.addSnapshotListener { snapshot, e ->
                 if (e != null) {
                     return@addSnapshotListener
                 }
                 if (snapshot != null && snapshot.exists()) {
-                    val traincart:Number=snapshot["traincart"] as Number
+                    val traincart:Number=snapshot["cart"] as Number
                     fabtrain.count=traincart.toInt()
                 }
             }
 
 
-            val docRef = db.collection("numbers").document("statusontrainfood")
-            docRef.addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    return@addSnapshotListener
-                }
-                if (snapshot != null && snapshot.exists()) {
-
-                    val isopen:Boolean=snapshot["isopen"] as Boolean
-                    if (isopen==true){
-                        fabtrain.visibility=View.VISIBLE
-                        fabtrain.setOnClickListener {
-                            startActivity(Intent(this, TrainCartActivity::class.java))
-                        }
-                        loadtypes(name)
-                        closednotice.visibility = View.GONE
-                        close.visibility = View.GONE
-                    }
-                    else
-                    {
-                        rvTypesProgressBar.visibility = View.GONE
-                        rvTypes.visibility = View.GONE
-                        fabtrain.visibility = View.GONE
-                        rvTypesProgressBar.visibility=View.GONE
-                        closednotice.visibility=View.VISIBLE
-                        close.visibility=View.VISIBLE
-                    }
-                }
-            }
-
+        fabtrain.visibility=View.VISIBLE
+        fabtrain.setOnClickListener {
+            startActivity(Intent(this, TrainCartActivity::class.java))
         }
-        else{
-
-            val docRef = db.collection("numbers").document("statusrestaurant")
-            docRef.addSnapshotListener { snapshot, e ->
-                if (e != null) {
-                    return@addSnapshotListener
-                }
-                if (snapshot != null && snapshot.exists()) {
-
-                    val isopen:Boolean=snapshot["isopen"] as Boolean
-                    if (isopen==true){
-
-                        fab.visibility=View.VISIBLE
-                        loadtypes(name!!)
-                        fab.setOnClickListener { view: View? ->
-                            startActivity(Intent(this, CartActivity::class.java))
-                        }
-                        closednotice.visibility = View.GONE
-                        close.visibility = View.GONE
-                    }
-                    else
-                    {
-                        rvTypesProgressBar.visibility = View.GONE
-                        rvTypes.visibility = View.GONE
-                        fab.visibility = View.GONE
-                        rvTypesProgressBar.visibility=View.GONE
-                        closednotice.visibility=View.VISIBLE
-                        close.visibility=View.VISIBLE
-                    }
-                }
-            }
-
-
-        }
-
-
-
-
+        loadtypes(name!!)
+        closednotice.visibility = View.GONE
+        close.visibility = View.GONE
 
     }
 
@@ -132,7 +71,6 @@ class TypesActivity : AppCompatActivity() {
                 }
 
                 val adp = TypesAdapter(this, typesList)
-
                 rvTypes.layoutManager = LinearLayoutManager(applicationContext, LinearLayoutManager.VERTICAL, false )
                 rvTypes.adapter = adp
                 rvTypes.visibility = View.VISIBLE
@@ -140,56 +78,5 @@ class TypesActivity : AppCompatActivity() {
             }
     }
 
-    var adapter: ProductAdapter?=null
-    private lateinit var cartDataSource: CartDataSource
-
-    override fun onStart() {
-        super.onStart()
-        EventBus.getDefault().register(this)
-    }
-
-    override fun onStop() {
-        EventBus.getDefault().unregister(this)
-        if(adapter!=null)
-            adapter!!.onStop()
-        super.onStop()
-    }
-
-
-    override fun onResume() {
-        super.onResume()
-        countCartItem()
-    }
-
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    fun onCountCartEvent(event: CountCartEvent)
-    {
-        if (event.isSuccess)
-        {
-            countCartItem()
-        }
-    }
-
-
-    private fun countCartItem(){
-        cartDataSource.countItemInCart(userid())
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object: SingleObserver<Int> {
-                override fun onSuccess(t: Int) {
-                    fab.count= t
-                }
-
-                override fun onSubscribe(d: Disposable) {
-
-                }
-
-                override fun onError(e: Throwable) {
-
-
-                }
-
-            })
-    }
 
 }

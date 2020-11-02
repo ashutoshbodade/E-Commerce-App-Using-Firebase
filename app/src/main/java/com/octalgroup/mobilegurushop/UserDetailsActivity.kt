@@ -120,7 +120,7 @@ class UserDetailsActivity : AppCompatActivity() {
                             "uphone" to uphone,
                             "points" to points,
                             "usertoken" to token,
-                            "traincart" to 0
+                            "cart" to 0
                         )
 
                         db.collection("users").document(uid.toString())

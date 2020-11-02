@@ -45,9 +45,9 @@ class CartTrainAdapter(var context: Context, var list: ArrayList<TrainCartModel>
             list[position].productname.toString(),
             list[position].productprice.toString(),
             list[position].productquantity.toString(),
-            list[position].productsize.toString(),
+            list[position].productcategory.toString(),
             list[position].productimage.toString(),
-            list[position].producttype.toString()
+            list[position].productsubcategory.toString()
         )
 
         val price = StringBuilder(list[position].productprice.toString())
@@ -95,14 +95,14 @@ class CartTrainAdapter(var context: Context, var list: ArrayList<TrainCartModel>
 
         holder.btn_delete.setOnClickListener {
 
-            db.collection("users").document(userid()).collection("traincarttemp").document(list[position].productid.toString())
+            db.collection("users").document(userid()).collection("carttemp").document(list[position].productid.toString())
                 .delete()
                 .addOnSuccessListener {
                     val saleref = db.collection("users").document(userid().toString())
                     db.runTransaction { transaction ->
                         val snapshot = transaction.get(saleref)
-                        val newsale = snapshot.getDouble("traincart")!! - 1
-                        transaction.update(saleref, "traincart", newsale)
+                        val newsale = snapshot.getDouble("cart")!! - 1
+                        transaction.update(saleref, "cart", newsale)
                     }
                 }
         }
@@ -129,10 +129,11 @@ class CartTrainAdapter(var context: Context, var list: ArrayList<TrainCartModel>
 
 
 
-        fun bind(id: Int, varproductname: String, varproductprice: String, varproductquantity: String, varproductsize: String, varproductimage: String, varproducttype: String) {
+
+        fun bind(id: Int, varproductname: String, varproductprice: String, varproductquantity: String, varproductcategory: String, varproductimage: String, varproductsubcategory: String) {
             txt_product_name.text=varproductname
 
-            txt_product_quantity.text= varproductsize
+            txt_product_quantity.text= varproductsubcategory
             txt_product_quantitytotal.text= varproductquantity
 
             txt_product_price.text= "$varproductprice \u20B9"
@@ -143,7 +144,7 @@ class CartTrainAdapter(var context: Context, var list: ArrayList<TrainCartModel>
         fun display(number: Int, pid:String) {
             txt_product_quantitytotal.text = number.toString()
 
-            val saleref = db.collection("users").document(userid().toString()).collection("traincarttemp").document(pid.toString())
+            val saleref = db.collection("users").document(userid().toString()).collection("carttemp").document(pid.toString())
             db.runTransaction { transaction ->
                 transaction.update(saleref, "productquantity", number.toInt())
             }

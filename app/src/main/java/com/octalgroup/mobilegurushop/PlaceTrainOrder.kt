@@ -35,21 +35,13 @@ class PlaceTrainOrder : AppCompatActivity() , PaymentResultListener {
 
     private var orderstatus:String="Booked"
 
-    private var spicelevel:String=""
     private var finaltotalprice:Int=0
 
-    private var points: Number=0
-    private var pointsused: Number=0
-    var inrupee:Double=0.0
     var minusprice:Double=0.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_place_train_order)
-        val bundle:Bundle?=intent.extras
-        trainno =bundle!!.getString("trainno")
-        trainname =bundle.getString("name")
-
         check()
 
         btnCOD.setOnClickListener {
@@ -82,7 +74,7 @@ class PlaceTrainOrder : AppCompatActivity() , PaymentResultListener {
                 "orderid" to orderid.toInt(),
                 "userid" to userid.toString(),
                 "userphone" to userphone.toString(),
-                "deliveryaddress" to "",
+                "deliveryaddress" to  txtAddress.text.toString(),
                 "supportnumber" to supportnumber.toString(),
                 "orderstatus" to orderstatus.toString(),
                 "paymentmode" to paymentmode.toString(),
@@ -93,7 +85,6 @@ class PlaceTrainOrder : AppCompatActivity() , PaymentResultListener {
                 "totalprice" to finaltotalprice.toString(),
                 "productstotal" to totalprice.toString(),
                 "deliverycharges" to "",
-                "deliverytype" to "Train",
                 "username" to username.toString(),
                 "date" to FieldValue.serverTimestamp(),
                 "instructions" to txtInstructions.text.toString(),
@@ -110,13 +101,7 @@ class PlaceTrainOrder : AppCompatActivity() , PaymentResultListener {
                 "did" to "",
                 "dname" to "",
                 "dimage" to "",
-                "dnumber" to "",
-                "trainno" to trainno.toString(),
-                "trainname" to trainname.toString(),
-                "spicelevel" to spicelevel,
-                "pointsused" to pointsused.toInt(),
-                "pointsprice" to minusprice.toInt(),
-                "pointsearned" to 0
+                "dnumber" to ""
             )
 
             db.collection("orders").document("order"+orderid.toString())
@@ -137,6 +122,7 @@ class PlaceTrainOrder : AppCompatActivity() , PaymentResultListener {
             val productprice: Int = productsList[x].productprice!!.toInt()
             val productquantity: Int = productsList[x].productquantity.toInt()
             val producttotal: Int = productprice * productquantity
+
             val docData = hashMapOf(
                 "orderid" to oid,
                 "uid" to userid.toString(),
@@ -146,10 +132,11 @@ class PlaceTrainOrder : AppCompatActivity() , PaymentResultListener {
                 "productimage" to productsList[x].productimage.toString(),
                 "productprice" to productsList[x].productprice.toString(),
                 "productquantity" to productsList[x].productquantity.toString(),
-                "productsize" to productsList[x].productsize.toString(),
-                "producttype" to productsList[x].producttype.toString(),
+                "productcategory" to productsList[x].productcategory.toString(),
+                "productsubcategory" to productsList[x].productsubcategory.toString(),
                 "producttotal" to producttotal.toString()
             )
+
             db.collection("orders")
                 .document("order"+oid.toString())
                 .collection("orderitems")
@@ -163,37 +150,28 @@ class PlaceTrainOrder : AppCompatActivity() , PaymentResultListener {
         }
 
         resetcartcount()
-        startActivity(Intent(this, HomeActivity::class.java))
+        startActivity(Intent(this, OrdersViewActivity::class.java))
         finish()
         Toasty.success(this,"Order Placed Sucessfully", Toast.LENGTH_LONG, true).show()
 
     }
 
     private fun deletefromcart(cartitem:String){
-        db.collection("users").document(userid()).collection("traincarttemp").document(cartitem)
+        db.collection("users").document(userid()).collection("carttemp").document(cartitem)
             .delete()
             .addOnSuccessListener {
-
             }
-
     }
 
     private fun bookedsave(){
-        val bookedadd = db.collection("stats").document("stats"+ todayDate())
+        val bookedadd = db.collection("numbers").document("stats")
         db.runTransaction { transaction ->
             val snapshot = transaction.get(bookedadd)
             val newOrderid = snapshot.getDouble("booked")!! + 1
             transaction.update(bookedadd, "booked", newOrderid)
         }
 
-        if(redeempoints.isChecked){
-            val userupdate = db.collection("users").document(userid())
-            db.runTransaction { transaction ->
-                val snapshot = transaction.get(userupdate)
-                //val newOrderid = snapshot.getDouble("booked")!! + 1
-                transaction.update(userupdate, "points",0)
-            }
-        }
+
     }
 
     private fun productplacedcount(productid:String, qty:Int){
@@ -208,23 +186,15 @@ class PlaceTrainOrder : AppCompatActivity() , PaymentResultListener {
     }
 
     private fun check(){
-
-        val docRef = db.collection("numbers").document("statusontrainfood")
-        docRef.addSnapshotListener { snapshot, e ->
-            if (e != null) {
-                return@addSnapshotListener
-            }
-            if (snapshot != null && snapshot.exists()) {
-                val isopen:Boolean=snapshot["isopen"] as Boolean
-                if (isopen==true){
                     loaddata()
                     db.collection("numbers").document("data")
                         .get()
                         .addOnSuccessListener { document ->
                             supportnumber = document["supportno"] as String
-                            val traincod: Boolean = document["traincod"] as Boolean
 
-                            if(traincod==true)
+                            val cod: Boolean = document["cod"] as Boolean
+
+                            if(cod==true)
                             {
                                 btnCOD.visibility=View.VISIBLE
                             }
@@ -234,28 +204,26 @@ class PlaceTrainOrder : AppCompatActivity() , PaymentResultListener {
                             }
 
                         }
-                }
-                else
-                {
-                    rvTypesProgressBar.visibility = View.GONE
-                    rvTProducts.visibility = View.GONE
-                    rvTypesProgressBar.visibility=View.GONE
-                    layout.visibility=View.GONE
-                    close.visibility=View.VISIBLE
-                }
-            }
-        }
-
-
     }
 
     private fun loaddata(){
-        txtTrainName.text=trainname
-        txtTrainNumber.text=trainno
+
         layout.visibility=View.VISIBLE
         close.visibility=View.GONE
 
-        db.collection("users").document(userid()).collection("traincarttemp")
+
+        db.collection("users")
+            .whereEqualTo("uid",userid())
+            .get()
+            .addOnSuccessListener { documents ->
+                for (document in documents) {
+                    val address =document["uaddress"] as String
+                    txtAddress.setText(address)
+
+                }
+            }
+
+        db.collection("users").document(userid()).collection("carttemp")
             .addSnapshotListener { value, e ->
                 if (e != null) {
                     // Log.w(TAG, "Listen failed.", e)
@@ -265,7 +233,7 @@ class PlaceTrainOrder : AppCompatActivity() , PaymentResultListener {
                 productsList.clear()
                 cartitems.clear()
                 totalprice=0
-                loadpoints()
+
 
                 rvTypesProgressBar.visibility = View.VISIBLE
                 for (document in value!!) {
@@ -295,83 +263,20 @@ class PlaceTrainOrder : AppCompatActivity() , PaymentResultListener {
         txtTotal.text="To Pay: ₹ "+finaltotalprice.toString()
     }
 
-    private fun loadpoints(){
-        db.collection("numbers").document("points")
-            .get()
-            .addOnSuccessListener { document ->
 
-                val pointsneeded: Number = document["pointredeemlimit"] as Number
-                val ppp: Number = document["ppp"] as Number
-
-                db.collection("users").document(userid())
-                    .get()
-                    .addOnSuccessListener { doc ->
-
-                        points = doc["points"] as Number
-
-                        if(points.toDouble() > pointsneeded.toDouble()){
-
-                            redeempoints.visibility=View.VISIBLE
-                            inrupee= ppp.toDouble() * points.toDouble()
-                            redeempoints.text="Redeem Your Food Points $points \nand get discount of ${inrupee.toInt()} ₹"
-
-                        }
-                    }
-            }
-    }
 
     private fun resetcartcount(){
-
         val saleref = db.collection("users").document(userid)
         db.runTransaction { transaction ->
-            transaction.update(saleref, "traincart", 0)
+            transaction.update(saleref, "cart", 0)
         }
+
+
     }
 
-    fun redeempoints(view: View) {
-        if(redeempoints.isChecked){
-            pointsused= points
-            minusprice= inrupee
-            pricecalculate()
-        }
-        else
-        {
-            pointsused=0
-            minusprice=0.0
-            pricecalculate()
-        }
-    }
 
-    fun rbclickspicy(view: View) {
 
-        val radio2: RadioButton = findViewById(rgSpiceLevel.checkedRadioButtonId)
 
-        if(radio2.text=="Low")
-        {
-            spicelevel="Low"
-            Toast.makeText(this,spicelevel, Toast.LENGTH_SHORT).show()
-        }
-        else if(radio2.text=="Medium")
-        {
-            spicelevel="Medium"
-            Toast.makeText(this,spicelevel, Toast.LENGTH_SHORT).show()
-        }
-        else if(radio2.text=="Spicy")
-        {
-            spicelevel="Spicy"
-            Toast.makeText(this,spicelevel, Toast.LENGTH_SHORT).show()
-        }
-        else if(radio2.text=="Extra Spicy")
-        {
-            spicelevel="Extra Spicy"
-            Toast.makeText(this,spicelevel, Toast.LENGTH_SHORT).show()
-        }
-        else
-        {
-            spicelevel="Not Selected"
-            Toast.makeText(this,spicelevel, Toast.LENGTH_SHORT).show()
-        }
-    }
 
     override fun onPaymentError(errorCode: Int, response: String?) {
         rvTypesProgressBar.visibility = View.VISIBLE
@@ -405,15 +310,15 @@ class PlaceTrainOrder : AppCompatActivity() , PaymentResultListener {
         try {
 
             val options = JSONObject()
-            options.put("name","Veera Da Dhaba")
-            options.put("description", com.octalgroup.mobilegurushop.userid().toString())
+            options.put("name","Mobile Guru Shop")
+            options.put("description", "Pay")
             //You can omit the image option to fetch the image from dashboard
-            options.put("image","https://s3.amazonaws.com/rzp-mobile/images/rzp.png")
+          //  options.put("image","https://firebasestorage.googleapis.com/v0/b/mobile-guru-shop.appspot.com/o/Banners%2Fmobileguru.PNG?alt=media&token=b4e8f61f-ceb6-499f-b7cf-2a4c40177dbf")
             options.put("currency","INR")
             options.put("amount",amount*100)
 
             val prefill = JSONObject()
-            //prefill.put("email","test@razorpay.com")
+          //  prefill.put("email","test@razorpay.com")
             prefill.put("contact", userno().toString())
             options.put("prefill",prefill)
             co.open(activity,options)

@@ -34,13 +34,8 @@ class AllProductViewActivity : AppCompatActivity() {
         val tname =  bundle.getString("tname")
 
         this.setTitle(tname)
-        cartDataSource = LocalCartDataSource(CartDatabase.getInstance(this).cartDAO())
 
-        fab.setOnClickListener { view: View? ->
-            startActivity(Intent(this, CartActivity::class.java))
-        }
-
-        db.collection("products").whereEqualTo("available", true).whereEqualTo("type",tname)
+             db.collection("products").whereEqualTo("available", true).whereEqualTo("category","Mobile").whereEqualTo("subcategory",tname)
             .get()
             .addOnSuccessListener { documents ->
                 val productsList = ArrayList<ProductModel>()
@@ -60,57 +55,11 @@ class AllProductViewActivity : AppCompatActivity() {
             }
     }
 
-    var adapter: ProductAdapter?=null
-    private lateinit var cartDataSource: CartDataSource
-
-    override fun onStart() {
-        super.onStart()
-        EventBus.getDefault().register(this)
-    }
-
-    override fun onStop() {
-        EventBus.getDefault().unregister(this)
-        if(adapter!=null)
-            adapter!!.onStop()
-        super.onStop()
-    }
 
 
-    override fun onResume() {
-        super.onResume()
-        countCartItem()
-    }
-
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    fun onCountCartEvent(event: CountCartEvent)
-    {
-        if (event.isSuccess)
-        {
-            countCartItem()
-        }
-    }
 
 
-    private fun countCartItem(){
-        cartDataSource.countItemInCart(userid())
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object: SingleObserver<Int> {
-                override fun onSuccess(t: Int) {
-                    fab.count= t
-                }
 
-                override fun onSubscribe(d: Disposable) {
-
-                }
-
-                override fun onError(e: Throwable) {
-
-
-                }
-
-            })
-    }
 
 
 }

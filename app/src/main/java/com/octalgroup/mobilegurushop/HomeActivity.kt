@@ -18,6 +18,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import android.widget.Toolbar
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,30 +28,22 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.messaging.FirebaseMessaging
 import com.razorpay.Checkout
 import es.dmoral.toasty.Toasty
-import io.reactivex.SingleObserver
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_home.*
+import kotlinx.android.synthetic.main.activity_home.fab
+import kotlinx.android.synthetic.main.activity_product_view.*
 import kotlinx.android.synthetic.main.content_home.*
 import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
+
 import java.util.*
 import kotlin.collections.ArrayList
 
 class HomeActivity : AppCompatActivity() {
+
     lateinit var mAuth: FirebaseAuth
 
     var adapter: ProductAdapter? = null
     val TAG: String = this::class.toString()
 
-    private lateinit var cartDataSource: CartDataSource
-
-    override fun onStart() {
-        super.onStart()
-        EventBus.getDefault().register(this)
-    }
 
     override fun onStop() {
         EventBus.getDefault().unregister(this)
@@ -59,101 +52,67 @@ class HomeActivity : AppCompatActivity() {
         super.onStop()
     }
 
-    override fun onResume() {
-        super.onResume()
-        countCartItem()
-    }
-
     val productsList = ArrayList<ReviewModel>()
     val adp = ReviewAdapter(this, productsList)
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_home)
 
         Checkout.preload(applicationContext)
 
         FirebaseMessaging.getInstance().isAutoInitEnabled = true
 
-        txtFoodPoints
-
-        db.collection("users").document(userid())
-            .get()
-            .addOnSuccessListener { document ->
-
-                val points = document["points"] as Number
-
-                if (points.toInt() > 0) {
-                    txtFoodPoints.visibility = View.VISIBLE
-                    txtFoodPoints.text = "Yepp... I have ${points.toString()} Food Points"
-                } else {
-                    txtFoodPoints.visibility = View.GONE
-                }
-
-            }
-            .addOnFailureListener {
-
-            }
-            .addOnCompleteListener {
-
-            }
 
 
-
-        cartDataSource = LocalCartDataSource(CartDatabase.getInstance(this).cartDAO())
-
-        /* db.collection("numbers").document("statusrestaurant")
-            .get()
-            .addOnSuccessListener { document ->
-
-            }*/
-
-        val docRef = db.collection("numbers").document("statusrestaurant")
-        docRef.addSnapshotListener { snapshot, e ->
-            if (e != null) {
-                Log.w(TAG, "Listen failed.", e)
-                return@addSnapshotListener
-            }
-            if (snapshot != null && snapshot.exists()) {
-
-                val isopen: Boolean = snapshot["isopen"] as Boolean
-                if (isopen == true) {
-
-                    rvTypesProgressBar.visibility = View.VISIBLE
-                    closednotice.visibility = View.GONE
-                    close.visibility = View.GONE
-                    viewHome()
-                } else {
-                    rvTypesProgressBar.visibility = View.GONE
-                    viewhome.visibility = View.GONE
-                    closednotice.visibility = View.VISIBLE
-                    close.visibility = View.VISIBLE
-                }
-                Log.d(TAG, "Current data: ${isopen}")
-            } else {
-                Log.d(TAG, "Current data: null")
-            }
-        }
-
+        viewHome()
 
     }
 
     fun viewHome() {
 
+        toolBar.inflateMenu(R.menu.menu_item)
+
+       /* toolBar.setOnMenuItemClickListener(object : Toolbar.OnMenuItemClickListener() {
+            fun onMenuItemClick(item: MenuItem): Boolean {
+                if (item.itemId == android.R.id.item1) {
+                    // do something
+                } else if (item.itemId == android.R.id.filter) {
+                    // do something
+                } else {
+                    // do something
+                }
+                return false
+            }
+
+
+        })*/
+
+        val docRef = db.collection("users").document(userid())
+        docRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                return@addSnapshotListener
+            }
+            if (snapshot != null && snapshot.exists()) {
+                val traincart:Number=snapshot["cart"] as Number
+                fab.count=traincart.toInt()
+            }
+        }
 
         btnOrders.setOnClickListener {
             startActivity(Intent(this, OrdersViewActivity::class.java))
         }
 
         fab.setOnClickListener { view: View? ->
-            startActivity(Intent(this, CartActivity::class.java))
+            startActivity(Intent(this, TrainCartActivity::class.java))
         }
 
         btnRestaurant.setOnClickListener {
             val intent = Intent(this, TypesActivity::class.java)
-            intent.putExtra("title", "Sweets")
-            intent.putExtra("name", "sweets")
+            intent.putExtra("title", "Mobile")
+            intent.putExtra("name", "Mobile")
             this.startActivity(intent)
         }
 
@@ -179,7 +138,7 @@ class HomeActivity : AppCompatActivity() {
             this.startActivity(intent)
         }
 
-        db.collection("producttypes").whereEqualTo("dtype", "normal").limit(5)
+        db.collection("producttypes").limit(5)
             .get()
             .addOnSuccessListener { documents ->
                 val typesList = ArrayList<TypesModel>()
@@ -198,10 +157,10 @@ class HomeActivity : AppCompatActivity() {
                 rvTypesProgressBar.visibility = View.GONE
             }
 
-        countCartItem()
 
 
-        db.collection("reviews").orderBy("id", Query.Direction.DESCENDING).limit(3)
+
+     /*   db.collection("reviews").orderBy("id", Query.Direction.DESCENDING).limit(3)
             .get()
             .addOnSuccessListener { documents ->
 
@@ -215,7 +174,7 @@ class HomeActivity : AppCompatActivity() {
                     LinearLayoutManager(applicationContext, LinearLayoutManager.VERTICAL, false)
                 rvReviews.adapter = adp
                 rvReviews.visibility = View.VISIBLE
-            }
+            }*/
 
         searchview.setOnQueryTextListener(object :
             androidx.appcompat.widget.SearchView.OnQueryTextListener {
@@ -280,7 +239,6 @@ class HomeActivity : AppCompatActivity() {
             }
 
         loadofferimg()
-
         loadlatestproducts()
 
     }
@@ -386,36 +344,7 @@ class HomeActivity : AppCompatActivity() {
         builder.show()
     }
 
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    fun onCountCartEvent(event: CountCartEvent) {
-        if (event.isSuccess) {
-            countCartItem()
-        }
-    }
-
-    private fun countCartItem() {
-        cartDataSource.countItemInCart(userid())
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : SingleObserver<Int> {
-                override fun onSuccess(t: Int) {
-                    fab.count = t
-                }
-
-                override fun onSubscribe(d: Disposable) {
-
-                }
-
-                override fun onError(e: Throwable) {
-                    Toast.makeText(this@HomeActivity, "Error", Toast.LENGTH_SHORT).show()
-
-                }
-
-            })
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
 
         return when (item.itemId) {
             R.id.orders -> {
@@ -442,8 +371,7 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-
+   /* override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_item, menu)
         /* val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
         (menu.findItem(R.id.search).actionView as SearchView).apply {
@@ -451,7 +379,7 @@ class HomeActivity : AppCompatActivity() {
         }*/
         // Inflate the menu; this adds items to the action bar if it is present.
         return true
-    }
+    }*/
 
 
 }

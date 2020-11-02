@@ -42,8 +42,7 @@ RecyclerView.Adapter<RecyclerView.ViewHolder>(), View.OnClickListener {
             c.startActivity(intent)
         }
 
-        Glide.with(c).load(list[position].img.toString())
-            .apply(RequestOptions.circleCropTransform()).into(holder.vtimgCategory)
+        Glide.with(c).load(list[position].img.toString()).apply(RequestOptions.circleCropTransform()).into(holder.vtimgCategory)
     }
 
 

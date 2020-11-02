@@ -31,14 +31,15 @@
                 android:orientation="vertical">
 
                 <TextView
-
+                    android:ellipsize="end"
+                    android:maxLines="2"
                     android:layout_gravity="center"
                     android:textAlignment="center"
                     android:id="@+id/txtName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Paneer Varadi"
-                    android:textSize="20sp"
+                    android:textSize="@dimen/_13sdp"
                     android:textColor="#0F0F0F"/>
 
                 <LinearLayout
@@ -90,13 +91,8 @@
                         android:layout_height="30dp"
                         android:src="@drawable/ic_check_black_24dp"
                         android:layout_gravity="center"/>
-
-
                 </LinearLayout>
-
             </LinearLayout>
-
-
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

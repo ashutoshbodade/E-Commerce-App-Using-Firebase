@@ -40,15 +40,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_alignParentBottom="true">
-        <CheckBox
-            android:visibility="gone"
-            android:layout_gravity="center"
-            android:id="@+id/redeempoints"
-            android:onClick="redeempoints"
-            android:textAlignment="center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Redeem points" />
+
     <TextView
         android:layout_margin="@dimen/_10sdp"
         android:textStyle="bold"
@@ -60,47 +52,15 @@
         android:layout_height="wrap_content"
         android:text="Total 600 Rs." />
 
-        <LinearLayout
-            android:layout_gravity="center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+        <TextView
 
-            <RadioGroup
-                android:id="@+id/rgSpiceLevel"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:orientation="horizontal">
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:id="@+id/txtAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Delivery Location" />
 
-                <RadioButton
-                    android:onClick="rbclickspicy"
-                    android:id="@+id/rdoLow"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Low" />
-
-                <RadioButton
-                    android:onClick="rbclickspicy"
-                    android:id="@+id/rdoMedium"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Medium" />
-
-                <RadioButton
-                    android:onClick="rbclickspicy"
-                    android:id="@+id/rdoSpicy"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Spicy" />
-
-                <RadioButton
-                    android:onClick="rbclickspicy"
-                    android:id="@+id/rdoExtraSpicy"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Extra Spicy" />
-            </RadioGroup>
-        </LinearLayout>
 
         <EditText
             android:layout_marginRight="@dimen/_15sdp"
@@ -111,36 +71,8 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
-            android:hint="Add Instructions"/>
+            android:hint="Address"/>
 
-    <TextView
-        android:gravity="center"
-        android:textAlignment="center"
-        android:id="@+id/txtTrainAvailability"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text=" * Deliver to railway station Akola only"
-        tools:ignore="RtlCompat" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:id="@+id/btnCheckout"
-            android:layout_margin="@dimen/_10sdp">
-                <TextView
-                    android:id="@+id/txtTrainNumber"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="521521"
-                    android:textSize="20sp"/>
-            <TextView
-                android:id="@+id/txtTrainName"
-                android:textColor="#0F0F0F"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Train name" />
-        </LinearLayout>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/btnCOD"

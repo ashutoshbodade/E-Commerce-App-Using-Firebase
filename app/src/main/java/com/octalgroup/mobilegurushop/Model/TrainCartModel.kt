@@ -8,22 +8,22 @@ class TrainCartModel {
     var productname: String?=null
     var productprice: String?=null
     var productquantity: Int=0
-    var productsize: String?=null
+    var productcategory: String?=null
 
-    var producttype: String?=null
+    var productsubcategory: String?=null
 
 
 
     constructor():this (0,"","",0,"","",""){}
 
-    constructor(productid:Int, productname: String?, productprice: String?, productquantity: Int, productsize: String?, productimage: String?, producttype: String?) {
+    constructor(productid:Int, productname: String?, productprice: String?, productquantity: Int, productcategory: String?, productimage: String?, productsubcategory: String?) {
         this.productid = productid
         this.productname = productname
         this.productprice = productprice
         this.productquantity=productquantity
-        this.productsize=productsize
+        this.productcategory=productcategory
         this.productimage=productimage
-        this.producttype=producttype
+        this.productsubcategory=productsubcategory
 
     }
 

@@ -37,11 +37,13 @@
 
 
                 <TextView
+                    android:ellipsize="end"
+                    android:maxLines="2"
                     android:id="@+id/txtName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="ABC ABC"
-                    android:textSize="24sp"
+                    android:textSize="@dimen/_13sdp"
                     android:textColor="#0F0F0F"/>
 
                 <LinearLayout

@@ -186,15 +186,9 @@ class OrdersAdapter(var c: Context, var list:ArrayList<OrderModel>):
             v_orderid.text="ORDER #"+varorderid.toString()
 
 
-            if (vardeliverytype=="Train"){
-                v_deliverytype.text=vardeliverytype
-                v_deliveryaddress.text="$vartrainno $vartrainname @Akola Station"
-            }
-            else
-            {
                 v_deliverytype.text=vardeliverytype
                 v_deliveryaddress.text=vardeliveryaddress
-            }
+
 
 
             v_paymentmode.text=varpaymentmode
@@ -234,7 +228,7 @@ class OrdersAdapter(var c: Context, var list:ArrayList<OrderModel>):
                 v_orderstatus.text="Confirmed"
                 v_orderstatus.setTextColor(Color.parseColor("#f39c12"))
 
-                v_orderstatusnext.text="Preparing Your Food"
+                v_orderstatusnext.text="Packaging your product"
 
                 v_orderstatusnext.setTextColor(Color.parseColor("#f39c12"))
                 v_statusconfirmed.setTextColor(Color.parseColor("#f39c12"))
@@ -253,14 +247,9 @@ class OrdersAdapter(var c: Context, var list:ArrayList<OrderModel>):
                // v_orderid.setTextColor(Color.parseColor("#2ecc71"))
                 v_orderstatus.text="Out For Delivery"
                 v_orderstatus.setTextColor(Color.parseColor("#2ecc71"))
-                if (vardeliverytype=="Pickup"){
-                    v_orderstatusnext.text="Waiting for you to pickup"
-                    v_deliverytype.text="Pickup from"
-                }
-                else
-                {
+
                     v_orderstatusnext.text="On the way to delivery location"
-                }
+
                 v_orderstatusnext.setTextColor(Color.parseColor("#2ecc71"))
                 v_statusintransit.setTextColor(Color.parseColor("#2ecc71"))
 

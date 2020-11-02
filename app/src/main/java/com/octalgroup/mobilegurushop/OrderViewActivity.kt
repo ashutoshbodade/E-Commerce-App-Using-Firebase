@@ -80,7 +80,7 @@ class OrderViewActivity : AppCompatActivity() {
         val trainname=bundle.getString("trainname")
 
 
-        txtInstructions.text="Instructions : "+instructions
+        txtInstructions.text="Address : "+instructions
 
         callaction.setOnClickListener {
             val intent = Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", supportnumber, null));
@@ -136,15 +136,9 @@ class OrderViewActivity : AppCompatActivity() {
                 load.visibility=View.GONE
             }
 
-        if (deliverytype=="Train"){
-            v_deliverytype.text=deliverytype
-            v_deliveryaddress.text="$trainno $trainname @Akola Station"
-        }
-        else
-        {
             v_deliverytype.text=deliverytype
             v_deliveryaddress.text=deliveryaddress
-        }
+
 
         v_paymentmode.text=paymentmode
         v_paymentstatus.text=paymentstatus
@@ -178,7 +172,7 @@ class OrderViewActivity : AppCompatActivity() {
             // v_orderid.setTextColor(Color.parseColor("#f39c12"))
             v_orderstatus.text="Confirmed"
             v_orderstatus.setTextColor(Color.parseColor("#f39c12"))
-            v_orderstatusnext.text="Preparing Your Food"
+            v_orderstatusnext.text="Packaging your product"
             v_orderstatusnext.setTextColor(Color.parseColor("#f39c12"))
             v_statusconfirmed.setTextColor(Color.parseColor("#f39c12"))
             v_orderdate.visibility= View.VISIBLE
@@ -197,18 +191,13 @@ class OrderViewActivity : AppCompatActivity() {
 
             v_orderstatus.text="In Transit"
             v_orderstatus.setTextColor(Color.parseColor("#2ecc71"))
-            if (deliverytype=="Pickup"){
-                v_orderstatusnext.text="Waiting for you to pickup"
-                v_deliverytype.text="Pickup from"
-            }
-            else
-            {
+
                 dView.visibility=View.VISIBLE
                 txtDname.text=dname
                 txtDnumber.text="Call ($dnumber)"
                 Glide.with(this).load(dimage).apply(RequestOptions.circleCropTransform()).into(imgd)
                 v_orderstatusnext.text="On the way"
-            }
+
             v_orderstatusnext.setTextColor(Color.parseColor("#2ecc71"))
             v_statusintransit.setTextColor(Color.parseColor("#2ecc71"))
 
@@ -310,11 +299,6 @@ class OrderViewActivity : AppCompatActivity() {
                     {
                         Toast.makeText(context,"Sorry you can't cancle now",Toast.LENGTH_SHORT).show()
                     }
-
-
-
-
-
 
                 }
 

@@ -131,9 +131,6 @@ class ProductView : AppCompatActivity() {
             }
 
 
-        fab.setOnClickListener { view: View? ->
-            startActivity(Intent(this, CartActivity::class.java))
-        }
 
         fab2.setOnClickListener {
             startActivity(Intent(this, TrainCartActivity::class.java))
@@ -155,12 +152,12 @@ class ProductView : AppCompatActivity() {
                         }
                         else
                         {
-                            val rate:Double=document["ratingaverage"] as Double
-                            val totalrate=document["totalratings"] as Double
-                            val decimal = BigDecimal(rate).setScale(2, RoundingMode.HALF_EVEN)
+                            val rate =document["ratingaverage"]
+                            val totalrate=document["totalratings"]
+                            val decimal = BigDecimal(rate.toString().toDouble()).setScale(2, RoundingMode.HALF_EVEN)
                             productRatingCount.text= decimal.toString()
-                            productRating.rating=rate.toFloat()
-                            productTotalRatings.text="("+totalrate.toInt()+")"
+                            productRating.rating=rate.toString().toFloat()
+                            productTotalRatings.text="("+totalrate.toString().toDouble()+")"
                         }
 
                     }
@@ -181,11 +178,13 @@ class ProductView : AppCompatActivity() {
         }
 
         btnSubmitReview.setOnClickListener {
+
             val rating = ratingBar.rating.toFloat()
+
             val review = txtReview.text.toString()
             val username = username().toString()
             val uid = userid().toString()
-            val productid= id!!.toInt()
+            val productid= id.toInt()
             btnSubmitReview.isClickable=false
             btnSubmitReview.isActivated=false
             writeReview.visibility=View.GONE
@@ -194,16 +193,30 @@ class ProductView : AppCompatActivity() {
 
 
             val sfDocRef = db.collection("ratings").document(productid.toString())
-            db.runTransaction { transaction ->
+                db.runTransaction { transaction ->
                 val snapshot = transaction.get(sfDocRef)
-
                 val newratings = snapshot.getDouble("totalratings")!! + 1
-                val ratings = snapshot.getDouble("ratingaverage")!! + rating
 
-                val average = ratings / 2
 
-                transaction.update(sfDocRef, "totalratings", newratings)
-                transaction.update(sfDocRef, "ratingaverage", average)
+                    if(snapshot.getDouble("ratingaverage") == 0.0){
+                        val ratings = snapshot.getDouble("ratingaverage")!! + rating
+                        val average = ratings
+                        transaction.update(sfDocRef, "totalratings", newratings)
+                        transaction.update(sfDocRef, "ratingaverage", average)
+                    }
+                    else
+                    {
+                        val ratings = snapshot.getDouble("ratingaverage")!! + rating
+                        val average = ratings / 2
+                        transaction.update(sfDocRef, "totalratings", newratings)
+                        transaction.update(sfDocRef, "ratingaverage", average)
+                    }
+
+
+
+
+
+
 
                 // Success
                 null
@@ -269,40 +282,15 @@ class ProductView : AppCompatActivity() {
                         txtMRP.text=mrp
                         txtMRP.paintFlags = txtMRP.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
 
-                        val qty:String=document["qty"] as String
-                        val unit:String=document["unit"] as String
+                        val category:String=document["category"] as String
+                        val subcategory:String=document["subcategory"] as String
 
                         val image:String=document["image"] as String
                         Glide.with(this).load(image).centerCrop().into(imageView)
-                        val dtype:String=document["dtype"] as String
-                        val type:String=document["type"] as String
 
-                        if(dtype=="normal") {
 
-                            cartDataSource.getItemInCart(id.toString(),userid())
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(object: SingleObserver<CartItem> {
-                                    override fun onSubscribe(d: Disposable) {
-                                    }
-                                    override fun onError(e: Throwable) {
 
-                                    }
-                                    override fun onSuccess(t: CartItem) {
-                                        btnAddToCart.text="ADDED TO CART"
-                                        btnAddToCart.isActivated=false
-                                        btnAddToCart.isClickable=false
 
-                                        btnBuyNow.text="Proceed to check out"
-                                    }
-                                })
-
-                            fab.visibility=View.VISIBLE
-                            fab2.visibility=View.GONE
-                            txtName.text=name+" ($qty $unit)"
-                        }
-
-                        else if(dtype=="train") {
 
                             val db = FirebaseFirestore.getInstance()
                             db.collection("users").document(userid()).collection("traincarttemp").document(id.toString())
@@ -332,7 +320,7 @@ class ProductView : AppCompatActivity() {
                                 }
                             fab.visibility=View.GONE
                             fab2.visibility=View.VISIBLE
-                            txtName.text=name+" ($qty $unit) *Food in Train Only"
+                            txtName.text=name+" ($subcategory $category)"
 
                             val docRef = db.collection("users").document(userid())
                             docRef.addSnapshotListener { snapshot, e ->
@@ -341,15 +329,10 @@ class ProductView : AppCompatActivity() {
                                 }
                                 if (snapshot != null && snapshot.exists()) {
 
-                                    val traincart:Number=snapshot["traincart"] as Number
+                                    val traincart:Number=snapshot["cart"] as Number
                                     fab2.count=traincart.toInt()
                                 }
                             }
-
-                        }
-
-
-
 
                         val description:String=document["description"] as String
 
@@ -372,31 +355,6 @@ class ProductView : AppCompatActivity() {
 
                         btnAddToCart.setOnClickListener {
 
-                            if(dtype=="normal"){
-                            cartItem.uid=userid()
-                            cartItem.userPhone=userno()
-                            cartItem.productId=id.toString()
-                            cartItem.productName=name.toString()
-                            cartItem.productImage=image.toString()
-                            cartItem.productPrice=price.toDouble()
-                            cartItem.productQuantity=1
-                            cartItem.productSize= "$qty $unit"
-                            cartItem.productType=type.toString()
-
-                            compositeDisposable.add(cartDataSource.insertOrReplaceAll(cartItem)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe({
-                                    btnAddToCart.text="ADDED TO CART"
-                                    org.greenrobot.eventbus.EventBus.getDefault().postSticky(CountCartEvent(true))
-                                },{
-                                        t: Throwable ->  Toast.makeText(this,"[Add to cart]"+t!!.message, Toast.LENGTH_SHORT).show()
-                                }))
-
-                            }
-
-                            else if(dtype=="train"){
-
                                 btnAddToCart.text="PLEASE WAIT"
 
                                 val docData = hashMapOf(
@@ -407,12 +365,14 @@ class ProductView : AppCompatActivity() {
                                     "productimage" to image.toString(),
                                     "productprice" to  price.toString(),
                                     "productquantity" to 1,
-                                    "productsize" to qty.toString() +" "+ unit.toString(),
-                                    "producttype" to  type.toString()
+                                    "productcategory" to category.toString(),
+                                    "productcategory" to  subcategory.toString()
                                 )
 
+
+
                                 val db = FirebaseFirestore.getInstance()
-                                db.collection("users").document(userid()).collection("traincarttemp")
+                                db.collection("users").document(userid()).collection("carttemp")
                                     .document(id.toString())
                                     .set(docData as Map<String, Any>)
                                     .addOnSuccessListener { documentReference ->
@@ -424,55 +384,61 @@ class ProductView : AppCompatActivity() {
                                         val saleref = db.collection("users").document(userid().toString())
                                         db.runTransaction { transaction ->
                                             val snapshot = transaction.get(saleref)
-                                            val newsale = snapshot.getDouble("traincart")!! + 1
-                                            transaction.update(saleref, "traincart", newsale)
+                                            val newsale = snapshot.getDouble("cart")!! + 1
+                                            transaction.update(saleref, "cart", newsale)
                                         }
 
-                                        btnAddToCart.text="ADDED TO TRAIN CART"
-                                        Toast.makeText(this,"Added to train cart",Toast.LENGTH_SHORT).show()
+                                        btnAddToCart.text="ADDED TO CART"
+                                        Toast.makeText(this,"Added to  cart",Toast.LENGTH_SHORT).show()
                                         btnBuyNow.text="Proceed to checkout"
                                     }
-                            }
+
 
                         }
 
                         btnBuyNow.setOnClickListener {
-                            if(dtype=="normal") {
-                                cartItem.uid = userid()
-                                cartItem.userPhone = userno()
-                                cartItem.productId = id.toString()
-                                cartItem.productName = name.toString()
-                                cartItem.productImage = image.toString()
-                                cartItem.productPrice = price.toDouble()
-                                cartItem.productQuantity = 1
-                                cartItem.productSize = "$qty $unit"
-                                cartItem.productType = type.toString()
-                                compositeDisposable.add(cartDataSource.insertOrReplaceAll(cartItem)
-                                    .subscribeOn(Schedulers.io())
-                                    .observeOn(AndroidSchedulers.mainThread())
-                                    .subscribe({
-                                        btnAddToCart.text = "ADDED TO CART"
-                                        val intent = Intent(this, PlaceOrderActivity::class.java)
-                                        //intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
-                                        this.startActivity(intent)
 
-                                        //holder.buttoncart.visibility=View.GONE
-                                        // holder.buttonok.visibility=View.VISIBLE
-                                        org.greenrobot.eventbus.EventBus.getDefault()
-                                            .postSticky(CountCartEvent(true))
-                                    }, { t: Throwable ->
-                                        Toast.makeText(
-                                            this,
-                                            "[Add to cart]" + t!!.message,
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    })
-                                )
-                            }
-                            else if(dtype=="train") {
-                                val intent = Intent(this,SelectTrain::class.java)
-                                startActivity(intent)
-                            }
+                            btnAddToCart.text="PLEASE WAIT"
+
+                            val docData = hashMapOf(
+                                "uid" to userid().toString(),
+                                "userphone" to userno().toString(),
+                                "productid" to id.toInt(),
+                                "productname" to name.toString(),
+                                "productimage" to image.toString(),
+                                "productprice" to  price.toString(),
+                                "productquantity" to 1,
+                                "productcategory" to category.toString(),
+                                "productcategory" to  subcategory.toString()
+                            )
+
+
+
+                            val db = FirebaseFirestore.getInstance()
+                            db.collection("users").document(userid()).collection("carttemp")
+                                .document(id.toString())
+                                .set(docData as Map<String, Any>)
+                                .addOnSuccessListener { documentReference ->
+                                }
+                                .addOnFailureListener { e ->
+                                }
+                                .addOnCompleteListener {
+
+                                    val saleref = db.collection("users").document(userid().toString())
+                                    db.runTransaction { transaction ->
+                                        val snapshot = transaction.get(saleref)
+                                        val newsale = snapshot.getDouble("cart")!! + 1
+                                        transaction.update(saleref, "cart", newsale)
+                                    }
+
+                                    btnAddToCart.text="ADDED TO CART"
+                                    Toast.makeText(this,"Added to  cart",Toast.LENGTH_SHORT).show()
+                                    btnBuyNow.text="Proceed to checkout"
+                                    startActivity(Intent(this, TrainCartActivity::class.java))
+                                }
+
+
+
 
                         }
 

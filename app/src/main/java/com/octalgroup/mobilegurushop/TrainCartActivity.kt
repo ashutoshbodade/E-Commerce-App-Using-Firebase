@@ -24,19 +24,18 @@ class TrainCartActivity : AppCompatActivity() {
 
 
         btnCheckoutTrain.setOnClickListener {
-            val intent=Intent(this,SelectTrain::class.java)
+            val intent=Intent(this,PlaceTrainOrder::class.java)
             startActivity(intent)
         }
 
 
-        db.collection("users").document(userid()).collection("traincarttemp")
+        db.collection("users").document(userid()).collection("carttemp")
             .addSnapshotListener { value, e ->
                 if (e != null) {
                     // Log.w(TAG, "Listen failed.", e)
                     // Toast.makeText(this,"No Data",Toast.LENGTH_LONG).show()
                     return@addSnapshotListener
                 }
-
                 productsList.clear()
                 cartitems.clear()
 
@@ -48,9 +47,9 @@ class TrainCartActivity : AppCompatActivity() {
                         val price:String=document["productprice"] as String
                         val qty:Number=document["productquantity"] as Number
                         cartitems.add(price.toInt()*qty.toInt())
-
                     }
                 }
+
                 rvTProducts.layoutManager = LinearLayoutManager(applicationContext, LinearLayoutManager.VERTICAL, false )
                 rvTProducts.adapter = adp
                 rvTProducts.visibility = View.VISIBLE

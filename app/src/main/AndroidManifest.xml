@@ -18,7 +18,6 @@
 
         </activity>
         <activity android:name="com.octalgroup.mobilegurushop.PlaceTrainOrder" />
-        <activity android:name="com.octalgroup.mobilegurushop.SelectTrain" />
         <activity android:name="com.octalgroup.mobilegurushop.OrderViewActivity" />
         <activity android:name="com.octalgroup.mobilegurushop.TypesActivity" />
         <activity android:name="com.octalgroup.mobilegurushop.TrainCartActivity" />
@@ -26,10 +25,9 @@
         <activity android:name="com.octalgroup.mobilegurushop.AllProductViewActivity" />
         <activity android:name="com.octalgroup.mobilegurushop.OrdersViewActivity" />
         <activity android:name="com.octalgroup.mobilegurushop.ProductView" />
-        <activity android:name="com.octalgroup.mobilegurushop.PlaceOrderActivity" />
-        <activity android:name="com.octalgroup.mobilegurushop.CartActivity" />
         <activity android:name="com.octalgroup.mobilegurushop.WelcomeActivity" />
-        <activity android:name="com.octalgroup.mobilegurushop.HomeActivity">
+        <activity android:name="com.octalgroup.mobilegurushop.HomeActivity"
+            android:theme="@style/AppThemehome">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
@@ -49,7 +47,7 @@
 
         <meta-data
             android:name="com.razorpay.ApiKey"
-            android:value="rzp_test_XWBPhUTYAhZlUq" />
+            android:value="rzp_live_p26c36jhyNgBtc" />
 
         <service
             android:name="com.octalgroup.mobilegurushop.MyFirebaseMessagingService"

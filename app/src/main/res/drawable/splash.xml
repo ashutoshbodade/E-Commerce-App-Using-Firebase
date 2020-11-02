@@ -3,7 +3,7 @@
 
     </item>
     <item>
-        <bitmap android:src="@drawable/gujrati" android:gravity="center"
+        <bitmap android:src="@drawable/icon" android:gravity="center"
             />
     </item>
 

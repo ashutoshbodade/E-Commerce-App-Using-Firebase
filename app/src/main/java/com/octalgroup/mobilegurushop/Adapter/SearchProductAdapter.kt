@@ -1,10 +1,5 @@
 package com.octalgroup.mobilegurushop.Adapter
 
-import com.octalgroup.mobilegurushop.Database.CartDataSource
-import com.octalgroup.mobilegurushop.Database.CartDatabase
-import com.octalgroup.mobilegurushop.Database.CartItem
-import com.octalgroup.mobilegurushop.Database.LocalCartDataSource
-import com.octalgroup.mobilegurushop.EventBus.CountCartEvent
 import com.octalgroup.mobilegurushop.Model.ProductModel
 import com.octalgroup.mobilegurushop.ProductView
 import com.octalgroup.mobilegurushop.R
@@ -20,11 +15,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.firestore.FirebaseFirestore
-import io.reactivex.SingleObserver
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.list_product.view.*
 
 class SearchProductAdapter(var c: Context, var list: ArrayList<ProductModel>) :
@@ -45,25 +35,19 @@ class SearchProductAdapter(var c: Context, var list: ArrayList<ProductModel>) :
         return searchableList.size
     }
 
-    private val compositeDisposable:CompositeDisposable
-    private val cartDataSource:CartDataSource
 
-    init {
-        compositeDisposable = CompositeDisposable()
-        cartDataSource = LocalCartDataSource(CartDatabase.getInstance(c).cartDAO())
-    }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+
         (holder as MyProjects).bind(
             searchableList[position].id,
             searchableList[position].name.toString(),
             searchableList[position].price.toString(),
-            searchableList[position].qty.toString(),
-            searchableList[position].unit.toString(),
             searchableList[position].image.toString(),
-            searchableList[position].type.toString(),
-            searchableList[position].dtype.toString()
+            searchableList[position].category.toString(),
+            searchableList[position].subcategory.toString()
         )
+
 
 
 
@@ -72,103 +56,67 @@ class SearchProductAdapter(var c: Context, var list: ArrayList<ProductModel>) :
             intent.putExtra("id",searchableList[position].id.toString())
             intent.putExtra("name",searchableList[position].name.toString())
             intent.putExtra("price",searchableList[position].price.toString())
-            intent.putExtra("qty",searchableList[position].qty.toString())
-            intent.putExtra("unit",searchableList[position].unit.toString())
             intent.putExtra("image",searchableList[position].image.toString())
-            intent.putExtra("type",searchableList[position].type.toString())
+            intent.putExtra("subcategory",searchableList[position].subcategory.toString())
             intent.putExtra("description",searchableList[position].description.toString())
-            intent.putExtra("dtype",list[position].dtype.toString())
+            intent.putExtra("category",list[position].category.toString())
             c.startActivity(intent)
         }
 
+
+
         holder.buttoncart.setOnClickListener {
-            if(list[position].dtype.toString()=="normal"){
-            val cartItem = CartItem()
-            cartItem.uid=userid()
-            cartItem.userPhone=userno()
-            cartItem.productId=searchableList[position].id.toString()
-            cartItem.productName=searchableList[position].name.toString()
-            cartItem.productImage=searchableList[position].image.toString()
-            cartItem.productPrice=searchableList[position].price!!.toDouble()
-            cartItem.productQuantity=1
-            cartItem.productSize=searchableList[position].qty!!.toString() +" "+searchableList[position].unit.toString()
-            cartItem.productType=searchableList[position].type.toString()
-            compositeDisposable.add(cartDataSource.insertOrReplaceAll(cartItem)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    Toast.makeText(c,"Added to cart", Toast.LENGTH_SHORT).show()
-                    holder.buttoncart.visibility=View.GONE
-                    holder.buttonok.visibility=View.VISIBLE
-                    org.greenrobot.eventbus.EventBus.getDefault().postSticky(CountCartEvent(true))
-                },{
-                        t: Throwable ->  Toast.makeText(c,"[Add to cart]"+t!!.message, Toast.LENGTH_SHORT).show()
-                }))
-            }
-            else if (list[position].dtype.toString()=="train")
-            {
+
 
                 holder.buttoncart.visibility= View.INVISIBLE
                 val docData = hashMapOf(
-                    "uid" to userid().toString(),
-                    "userphone" to userno().toString(),
-                    "productid" to list[position].id.toInt(),
-                    "productname" to list[position].name.toString(),
-                    "productimage" to  list[position].image.toString(),
-                    "productprice" to  list[position].price.toString(),
-                    "productquantity" to 1,
-                    "productsize" to list[position].qty.toString() +" "+list[position].unit.toString(),
-                    "producttype" to  list[position].type.toString()
-                )
+                "uid" to userid().toString(),
+                "userphone" to userno().toString(),
+                "productid" to list[position].id.toInt(),
+                "productname" to list[position].name.toString(),
+                "productimage" to list[position].image.toString(),
+                "productprice" to list[position].price.toString(),
+                "productquantity" to 1,
+                "productcategory" to list[position].category.toString(),
+                "productsubcategory" to list[position].subcategory.toString()
+            )
 
-                val db = FirebaseFirestore.getInstance()
-                db.collection("users").document(userid()).collection("traincarttemp")
-                    .document(list[position].id.toString())
-                    .set(docData as Map<String, Any>)
-                    .addOnSuccessListener { documentReference ->
-                    }
-                    .addOnFailureListener { e ->
-                    }
-                    .addOnCompleteListener {
+            val db = FirebaseFirestore.getInstance()
+            db.collection("users").document(userid()).collection("carttemp")
+                .document(list[position].id.toString())
+                .set(docData as Map<String, Any>)
+                .addOnSuccessListener { documentReference ->
+                }
+                .addOnFailureListener { e ->
+                }
+                .addOnCompleteListener {
+                    holder.buttoncart.visibility = View.GONE
+                    holder.buttonok.visibility = View.VISIBLE
+                    Toast.makeText(c, "Added to cart", Toast.LENGTH_SHORT).show()
 
-                        val saleref = db.collection("users").document(userid().toString())
-                        db.runTransaction { transaction ->
-                            val snapshot = transaction.get(saleref)
-                            val newsale = snapshot.getDouble("traincart")!! + 1
-                            transaction.update(saleref, "traincart", newsale)
-                        }
-
-                        holder.buttoncart.visibility= View.GONE
-                        holder.buttonok.visibility= View.VISIBLE
-                        Toast.makeText(c,"Added to train cart",Toast.LENGTH_SHORT).show()
+                    val saleref = db.collection("users").document(userid().toString())
+                    db.runTransaction { transaction ->
+                        val snapshot = transaction.get(saleref)
+                        val newsale = snapshot.getDouble("cart")!! + 1
+                        transaction.update(saleref, "cart", newsale)
                     }
+                }
 
             }
+
+        Glide.with(c).load(searchableList[position].image.toString()).into(holder.vimage)
+
         }
-
-        Glide.with(c).load(searchableList[position].image.toString())
-            .apply(RequestOptions.circleCropTransform()).into(holder.vimage)
-
-    }
-
-    fun onStop()
-    {
-        if (compositeDisposable!=null)
-            compositeDisposable.clear()
-    }
 
 
     inner class MyProjects(var view: View ) : RecyclerView.ViewHolder(view) {
-
         internal var minteger = 1
         var vcid: String? = null
         var vcprice: String? = null
         var vcqty: String? = null
         var vcunit: String? = null
 
-
         init {
-
             itemView.btnaddtocart.setOnClickListener {
                 /*
                 Toast.makeText(c, vcid, Toast.LENGTH_SHORT).show()
@@ -181,10 +129,6 @@ class SearchProductAdapter(var c: Context, var list: ArrayList<ProductModel>) :
                 vdata.text="ashu"
                 */
             }
-
-
-
-
 
             itemView.increase.setOnClickListener {
                 increaseInteger()
@@ -232,13 +176,11 @@ class SearchProductAdapter(var c: Context, var list: ArrayList<ProductModel>) :
             val qtyproductint = qtyproduct.toInt()
 
             if (qtyproductint > 0) {
-
                 val totalprice = qtyproductint * vcprice!!.toInt()
                 vprice.text = totalprice.toString() + ".0 ₹"
                 val totalqty = qtyproductint * vcqty!!.toInt()
                 val totalqtyst = totalqty.toString()
                 vqty.text = "$totalqtyst $vcunit"
-
             }
 
 
@@ -253,60 +195,43 @@ class SearchProductAdapter(var c: Context, var list: ArrayList<ProductModel>) :
         var buttonok = view.findViewById<ImageView>(R.id.btnok)
 
 
-        fun bind(id: Int, name: String, price: String, qty: String, unit: String, image: String, type: String, vardtype:String) {
+        fun bind(id: Int, name: String, price: String, image: String, category: String, subcategory: String) {
+
             vname.text = name.toString()
             vprice.text = price + ".0 ₹"
-            vqty.text = "$qty $unit"
+            vqty.text = subcategory
             vcid = id.toString()
             vcprice = price
-            vcqty = qty
-            vcunit = unit
 
+            /*  vcqty = qty
+              vcunit = unit*/
 
-            if(vardtype=="normal"){
-                cartDataSource.getItemInCart(id.toString(),userid())
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(object: SingleObserver<CartItem> {
-                        override fun onSubscribe(d: Disposable) {
-                        }
-                        override fun onError(e: Throwable) {
-                            buttoncart.visibility = View.VISIBLE
-                            buttonok.visibility = View.GONE
-                        }
-                        override fun onSuccess(t: CartItem) {
+            val db = FirebaseFirestore.getInstance()
+            db.collection("users").document(userid()).collection("carttemp").document(id.toString())
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document != null) {
+
+                        val productname=document["productname"]
+
+                        if(productname!=null){
+                            println("datas exist $id")
                             buttoncart.visibility = View.GONE
                             buttonok.visibility = View.VISIBLE
                         }
-                    })
-            }
-            else  if(vardtype=="train")
-            {
-                val db = FirebaseFirestore.getInstance()
-                db.collection("users").document(userid()).collection("traincarttemp").document(id.toString())
-                    .get()
-                    .addOnSuccessListener { document ->
-                        if (document != null) {
-
-                            val productname=document["productname"]
-
-                            if(productname!=null){
-                                println("datas exist $id")
-                                buttoncart.visibility = View.GONE
-                                buttonok.visibility = View.VISIBLE
-                            }
 
 
-                        } else {
-                            println("datas not exist $id")
-
-                        }
-                    }
-                    .addOnFailureListener { exception ->
-                        println("datas failed exist $id")
+                    } else {
+                        println("datas not exist $id")
 
                     }
-            }
+                }
+                .addOnFailureListener { exception ->
+                    println("datas failed exist $id")
+
+                }
+
+
 
         }
 
@@ -319,7 +244,9 @@ class SearchProductAdapter(var c: Context, var list: ArrayList<ProductModel>) :
             private val filterResults = FilterResults()
 
             override fun performFiltering(constraint: CharSequence?): FilterResults {
+
                 searchableList.clear()
+
                 if (constraint.isNullOrBlank())
                 {
                     searchableList.addAll(list)
@@ -332,13 +259,13 @@ class SearchProductAdapter(var c: Context, var list: ArrayList<ProductModel>) :
                             searchableList.add(list[item])
                           //  Toast.makeText(c,filterPattern+"found", Toast.LENGTH_SHORT).show()
                         }
-                        else if (list[item].description!!.toLowerCase().contains(filterPattern)) {
-                            searchableList.add(list[item])
-                         //   Toast.makeText(c,filterPattern+"found", Toast.LENGTH_SHORT).show()
-                        }
-                        else if (list[item].type!!.toLowerCase().contains(filterPattern)) {
+                        else if (list[item].category!!.toLowerCase().contains(filterPattern)) {
                             searchableList.add(list[item])
                           //  Toast.makeText(c,filterPattern+"found", Toast.LENGTH_SHORT).show()
+                        }
+                        else if (list[item].subcategory!!.toLowerCase().contains(filterPattern)) {
+                            searchableList.add(list[item])
+                            //  Toast.makeText(c,filterPattern+"found", Toast.LENGTH_SHORT).show()
                         }
                         else if (list[item].image!!.toLowerCase().contains(filterPattern)) {
                             searchableList.add(list[item])
@@ -353,8 +280,6 @@ class SearchProductAdapter(var c: Context, var list: ArrayList<ProductModel>) :
             }
 
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
-
-
                 notifyDataSetChanged()
             }
 

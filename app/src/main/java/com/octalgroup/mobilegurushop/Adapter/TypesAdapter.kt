@@ -33,6 +33,7 @@ class TypesAdapter(var c: Context, var list:ArrayList<TypesModel>):
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+
         (holder as MyProjects).bind(list[position].id,list[position].tname.toString())
 
         var expandedPosition = 1
@@ -63,10 +64,12 @@ class TypesAdapter(var c: Context, var list:ArrayList<TypesModel>):
 
     var ptypename:String?=null
 
+
     fun recycler(){
     val db = FirebaseFirestore.getInstance()
     db.collection("products")
-        .whereEqualTo("type",ptypename).whereEqualTo("available",true)
+
+        .whereEqualTo("subcategory",ptypename).whereEqualTo("available",true)
         .get()
         .addOnSuccessListener { documents ->
             val productsList = ArrayList<ProductModel>()
@@ -90,7 +93,6 @@ class TypesAdapter(var c: Context, var list:ArrayList<TypesModel>):
         var vtname=view.findViewById<TextView>(R.id.txtTypeName)
         var vtrvproduct=view.findViewById<RecyclerView>(R.id.rvProducts)
         var vtrvProductsProgressBar=view.findViewById<ProgressBar>(R.id.rvProductsProgressBar)
-
         var vtdropdown=view.findViewById<TableLayout>(R.id.dropdown)
         var vtdropdownup=view.findViewById<ImageView>(R.id.dropdownup)
         var vtdropdowndown=view.findViewById<ImageView>(R.id.dropdowndown)

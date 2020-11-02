@@ -23,7 +23,6 @@ import com.bumptech.glide.Glide
 import com.google.firebase.firestore.FirebaseFirestore
 import io.reactivex.SingleObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
@@ -43,13 +42,8 @@ class AllProductsViewAdapter(var c: Context, var list: ArrayList<ProductModel>) 
         return list.size
     }
 
-    private val compositeDisposable: CompositeDisposable
-    private val cartDataSource: CartDataSource
 
-    init {
-        compositeDisposable = CompositeDisposable()
-        cartDataSource = LocalCartDataSource(CartDatabase.getInstance(c).cartDAO())
-    }
+
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
@@ -57,11 +51,9 @@ class AllProductsViewAdapter(var c: Context, var list: ArrayList<ProductModel>) 
             list[position].id,
             list[position].name.toString(),
             list[position].price.toString(),
-            list[position].qty.toString(),
-            list[position].unit.toString(),
             list[position].image.toString(),
-            list[position].type.toString(),
-            list[position].dtype.toString()
+            list[position].category.toString(),
+            list[position].subcategory.toString()
         )
 
 
@@ -71,95 +63,59 @@ class AllProductsViewAdapter(var c: Context, var list: ArrayList<ProductModel>) 
             intent.putExtra("id",list[position].id.toString())
             intent.putExtra("name",list[position].name.toString())
             intent.putExtra("price",list[position].price.toString())
-            intent.putExtra("qty",list[position].qty.toString())
-            intent.putExtra("unit",list[position].unit.toString())
             intent.putExtra("image",list[position].image.toString())
-            intent.putExtra("type",list[position].type.toString())
+            intent.putExtra("category",list[position].category.toString())
             intent.putExtra("description",list[position].description.toString())
-
-            intent.putExtra("dtype",list[position].dtype.toString())
-
+            intent.putExtra("subcategory",list[position].subcategory.toString())
             c.startActivity(intent)
         }
 
         holder.buttoncart.setOnClickListener {
 
+            holder.buttoncart.visibility = View.INVISIBLE
 
-            if(list[position].dtype.toString()=="normal"){
-                val cartItem = CartItem()
-                cartItem.uid= userid()
-                cartItem.userPhone= userno()
-                cartItem.productId=list[position].id.toString()
-                cartItem.productName=list[position].name.toString()
-                cartItem.productImage=list[position].image.toString()
-                cartItem.productPrice=list[position].price!!.toDouble()
-                cartItem.productQuantity=1
-                cartItem.productSize=list[position].qty!!.toString() +" "+list[position].unit.toString()
-                cartItem.productType=list[position].type.toString()
+            val docData = hashMapOf(
+                "uid" to userid().toString(),
+                "userphone" to userno().toString(),
+                "productid" to list[position].id.toInt(),
+                "productname" to list[position].name.toString(),
+                "productimage" to list[position].image.toString(),
+                "productprice" to list[position].price.toString(),
+                "productquantity" to 1,
+                "productcategory" to list[position].category.toString(),
+                "productsubcategory" to list[position].subcategory.toString()
+            )
 
-                compositeDisposable.add(cartDataSource.insertOrReplaceAll(cartItem)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({
-                        Toast.makeText(c,"Added to cart", Toast.LENGTH_SHORT).show()
-                        holder.buttoncart.visibility= View.GONE
-                        holder.buttonok.visibility= View.VISIBLE
-                        org.greenrobot.eventbus.EventBus.getDefault().postSticky(CountCartEvent(true))
+            val db = FirebaseFirestore.getInstance()
+            db.collection("users").document(userid()).collection("carttemp")
+                .document(list[position].id.toString())
+                .set(docData as Map<String, Any>)
+                .addOnSuccessListener { documentReference ->
+                }
+                .addOnFailureListener { e ->
+                }
+                .addOnCompleteListener {
+                    holder.buttoncart.visibility = View.GONE
+                    holder.buttonok.visibility = View.VISIBLE
+                    Toast.makeText(c, "Added to cart", Toast.LENGTH_SHORT).show()
 
-                    },{
-                            t: Throwable ->  Toast.makeText(c,"[Add to cart]"+t!!.message, Toast.LENGTH_SHORT).show()
-                    }))
-            }
-            else if (list[position].dtype.toString()=="train")
-            {
-                holder.buttoncart.visibility= View.INVISIBLE
-                val docData = hashMapOf(
-                    "uid" to userid().toString(),
-                    "userphone" to userno().toString(),
-                    "productid" to list[position].id.toInt(),
-                    "productname" to list[position].name.toString(),
-                    "productimage" to  list[position].image.toString(),
-                    "productprice" to  list[position].price.toString(),
-                    "productquantity" to 1,
-                    "productsize" to list[position].qty.toString() +" "+list[position].unit.toString(),
-                    "producttype" to  list[position].type.toString()
-                )
-
-                val db = FirebaseFirestore.getInstance()
-                db.collection("users").document(userid()).collection("traincarttemp")
-                    .document(list[position].id.toString())
-                    .set(docData as Map<String, Any>)
-                    .addOnSuccessListener { documentReference ->
+                    val saleref = db.collection("users").document(userid().toString())
+                    db.runTransaction { transaction ->
+                        val snapshot = transaction.get(saleref)
+                        val newsale = snapshot.getDouble("cart")!! + 1
+                        transaction.update(saleref, "cart", newsale)
                     }
-                    .addOnFailureListener { e ->
-                    }
-                    .addOnCompleteListener {
-                        holder.buttoncart.visibility= View.GONE
-                        holder.buttonok.visibility= View.VISIBLE
-                        Toast.makeText(c,"Added to train cart",Toast.LENGTH_SHORT).show()
-
-                        val saleref = db.collection("users").document(userid().toString())
-                        db.runTransaction { transaction ->
-                            val snapshot = transaction.get(saleref)
-                            val newsale = snapshot.getDouble("traincart")!! + 1
-                            transaction.update(saleref, "traincart", newsale)
-                        }
-                    }
-
-            }
-
+                }
         }
 
-        Glide.with(c).load(list[position].image.toString())
-            .centerCrop().into(holder.vimage)
+
+
+
+
+        Glide.with(c).load(list[position].image.toString()).into(holder.vimage)
 
     }
 
-    fun onStop()
-    {
-        if (compositeDisposable!=null)
-            compositeDisposable.clear()
-    }
 
 
     inner class MyProjects(var view: View) : RecyclerView.ViewHolder(view) {
@@ -181,36 +137,20 @@ class AllProductsViewAdapter(var c: Context, var list: ArrayList<ProductModel>) 
         var buttonok = view.findViewById<ImageView>(R.id.btnok)
 
 
-        fun bind(id: Int, name: String, price: String, qty: String, unit: String, image: String, type: String, vardtype:String) {
+        fun bind(id: Int, name: String, price: String, image: String, category: String, subcategory: String) {
+
             vname.text = name.toString()
             vprice.text = price + ".0 ₹"
-            vqty.text = "$qty $unit"
+            vqty.text = subcategory
             vcid = id.toString()
             vcprice = price
-            vcqty = qty
-            vcunit = unit
 
-            if(vardtype=="normal"){
-                cartDataSource.getItemInCart(id.toString(),userid())
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(object: SingleObserver<CartItem> {
-                        override fun onSubscribe(d: Disposable) {
-                        }
-                        override fun onError(e: Throwable) {
-                            buttoncart.visibility = View.VISIBLE
-                            buttonok.visibility = View.GONE
-                        }
-                        override fun onSuccess(t: CartItem) {
-                            buttoncart.visibility = View.GONE
-                            buttonok.visibility = View.VISIBLE
-                        }
-                    })
-            }
-            else  if(vardtype=="train")
-            {
+          /*  vcqty = qty
+            vcunit = unit*/
+
+
                 val db = FirebaseFirestore.getInstance()
-                db.collection("users").document(userid()).collection("traincarttemp").document(id.toString())
+                db.collection("users").document(userid()).collection("carttemp").document(id.toString())
                     .get()
                     .addOnSuccessListener { document ->
                         if (document != null) {
@@ -233,7 +173,7 @@ class AllProductsViewAdapter(var c: Context, var list: ArrayList<ProductModel>) 
                         println("datas failed exist $id")
 
                     }
-            }
+
 
         }
 
