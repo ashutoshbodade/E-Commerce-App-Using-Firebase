@@ -55,7 +55,7 @@ class UserDetailsActivity : AppCompatActivity() {
                         val uemail:String=document["uemail"] as String
                         edttxtEmail.setText(uemail)
 
-                       points = document["points"] as Number
+
 
                     }
 
@@ -118,7 +118,6 @@ class UserDetailsActivity : AppCompatActivity() {
                             "uaddress" to uaddress,
                             "uemail" to uemail,
                             "uphone" to uphone,
-                            "points" to points,
                             "usertoken" to token,
                             "cart" to 0
                         )
@@ -137,7 +136,7 @@ class UserDetailsActivity : AppCompatActivity() {
                     else{
                         btnContinue.isEnabled = true
                         btnContinue.isClickable = true
-                        btnContinueTxt.text="CONTINUE TO GUJARATI SWEETS"
+                        btnContinueTxt.text="CONTINUE TO MOBILE GURU SHOP"
                         Toasty.error(applicationContext, "Please Fill All Details ", Toast.LENGTH_SHORT, true).show();
                     }
                 })

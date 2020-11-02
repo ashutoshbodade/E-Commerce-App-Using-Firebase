@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AccessoriesActivity">
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/loading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:lottie_loop="true"
+        app:lottie_autoPlay="true"
+        app:lottie_rawRes="@raw/wave"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvAllProducts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible"/>
+
+
+    <com.andremion.counterfab.CounterFab
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/_15sdp"
+        android:clickable="true"
+        android:tint="@android:color/white"
+        app:srcCompat="@drawable/ic_add_shopping_cart_black_24dp"
+        tools:ignore="VectorDrawableCompat" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

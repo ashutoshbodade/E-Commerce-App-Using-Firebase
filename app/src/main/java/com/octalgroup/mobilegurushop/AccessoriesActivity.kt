@@ -1,35 +1,23 @@
 package com.octalgroup.mobilegurushop
 
-import com.octalgroup.mobilegurushop.Adapter.AllProductsViewAdapter
-import com.octalgroup.mobilegurushop.Adapter.ProductAdapter
-import com.octalgroup.mobilegurushop.Database.CartDataSource
-import com.octalgroup.mobilegurushop.Database.CartDatabase
-import com.octalgroup.mobilegurushop.Database.LocalCartDataSource
-import com.octalgroup.mobilegurushop.EventBus.CountCartEvent
-import com.octalgroup.mobilegurushop.Model.ProductModel
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import io.reactivex.SingleObserver
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
-import kotlinx.android.synthetic.main.activity_all_product_view.*
-import kotlinx.android.synthetic.main.activity_all_product_view.fab
-import kotlinx.android.synthetic.main.activity_home.*
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
-
-class AllProductViewActivity : AppCompatActivity() {
+import com.octalgroup.mobilegurushop.Adapter.AllProductsViewAdapter
+import com.octalgroup.mobilegurushop.Model.ProductModel
+import kotlinx.android.synthetic.main.activity_accessories.*
 
 
+class AccessoriesActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_all_product_view)
+        setContentView(R.layout.activity_accessories)
+        val bundle: Bundle?= intent.extras
+        val name =  bundle!!.getString("name")
+        val title =  bundle.getString("title")
+        this.setTitle(title)
 
 
         val docRef = db.collection("users").document(userid())
@@ -48,13 +36,7 @@ class AllProductViewActivity : AppCompatActivity() {
             startActivity(Intent(this, TrainCartActivity::class.java))
         }
 
-        val bundle: Bundle?= intent.extras
-        val id =  bundle!!.getString("id")
-        val tname =  bundle.getString("tname")
-
-        this.setTitle(tname)
-
-             db.collection("products").whereEqualTo("available", true).whereEqualTo("category","Mobile").whereEqualTo("subcategory",tname)
+        db.collection("products").whereEqualTo("available", true).whereEqualTo("category",name)
             .get()
             .addOnSuccessListener { documents ->
                 val productsList = ArrayList<ProductModel>()
@@ -72,13 +54,7 @@ class AllProductViewActivity : AppCompatActivity() {
                 rvAllProducts.visibility = View.VISIBLE
                 loading.visibility=View.GONE
             }
+
+
     }
-
-
-
-
-
-
-
-
 }

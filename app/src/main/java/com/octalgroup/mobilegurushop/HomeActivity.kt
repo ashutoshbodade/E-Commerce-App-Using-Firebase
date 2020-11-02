@@ -65,8 +65,6 @@ class HomeActivity : AppCompatActivity() {
 
         FirebaseMessaging.getInstance().isAutoInitEnabled = true
 
-
-
         viewHome()
 
     }
@@ -109,32 +107,32 @@ class HomeActivity : AppCompatActivity() {
             startActivity(Intent(this, TrainCartActivity::class.java))
         }
 
-        btnRestaurant.setOnClickListener {
+        btnMobile.setOnClickListener {
             val intent = Intent(this, TypesActivity::class.java)
             intent.putExtra("title", "Mobile")
             intent.putExtra("name", "Mobile")
             this.startActivity(intent)
         }
 
-        btnCake.setOnClickListener {
-            val intent = Intent(this, TypesActivity::class.java)
-            intent.putExtra("title", "Namkeens")
-            intent.putExtra("name", "namkeen")
+        btnAccessories.setOnClickListener {
+            val intent = Intent(this, AccessoriesActivity::class.java)
+            intent.putExtra("title", "Accessories")
+            intent.putExtra("name", "Accessories")
             this.startActivity(intent)
         }
 
-        btnIceCream.setOnClickListener {
-            val intent = Intent(this, TypesActivity::class.java)
-            intent.putExtra("title", "Fast Food")
-            intent.putExtra("name", "fastfood")
+        btnHeadphone.setOnClickListener {
+            val intent = Intent(this, AccessoriesActivity::class.java)
+            intent.putExtra("title", "Headphone")
+            intent.putExtra("name", "Headphone")
             this.startActivity(intent)
         }
 
-        btnTrain.setOnClickListener {
+        btnStorage.setOnClickListener {
 
-            val intent = Intent(this, TypesActivity::class.java)
-            intent.putExtra("title", "Confectionery")
-            intent.putExtra("name", "confectionery")
+            val intent = Intent(this, AccessoriesActivity::class.java)
+            intent.putExtra("title", "Storage")
+            intent.putExtra("name", "Storage")
             this.startActivity(intent)
         }
 

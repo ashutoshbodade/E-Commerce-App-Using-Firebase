@@ -19,7 +19,7 @@
             <ImageView
                 android:layout_gravity="center"
                 android:id="@+id/imgProduct"
-                android:layout_width="match_parent"
+                android:layout_width="@dimen/_100sdp"
                 android:layout_height="@dimen/_100sdp"
                 app:srcCompat="@drawable/ic_launcher_background"
                 aandroid:ignore="VectorDrawableCompat" />

@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginTop="@dimen/_80sdp"
+        android:layout_marginTop="@dimen/_100sdp"
         android:layout_marginRight="@dimen/_15sdp"
         android:layout_marginLeft="@dimen/_15sdp">
 
@@ -58,7 +58,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginTop="@dimen/_80sdp"
+        android:layout_marginTop="@dimen/_100sdp"
         android:layout_marginRight="@dimen/_15sdp"
         android:layout_marginLeft="@dimen/_15sdp">
 
@@ -122,6 +122,15 @@
         </androidx.cardview.widget.CardView>
     </LinearLayout>
 
+
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="304dp"
+        android:paddingEnd="@dimen/_20sdp"
+        app:srcCompat="@drawable/icon" />
 
     <ProgressBar
         android:id="@+id/progress"
