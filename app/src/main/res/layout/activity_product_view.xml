@@ -15,9 +15,8 @@
         app:lottie_autoPlay="true"
         app:lottie_rawRes="@raw/wave"/>
 
-
     <ScrollView
-
+        android:visibility="gone"
         android:id="@+id/productView"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
@@ -140,7 +139,15 @@
                 android:textColor="#1C1C1C"
                 android:text="Description"
                 tools:ignore="RtlHardcoded" />
-
+            <com.google.android.gms.ads.AdView
+                xmlns:ads="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/adViewdashboard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/_5sdp"
+                ads:adSize="BANNER"
+                ads:adUnitId="ca-app-pub-1817777812087548/7975363256">
+            </com.google.android.gms.ads.AdView>
             <TextView
                 android:textSize="15sp"
                 android:layout_marginBottom="@dimen/_5sdp"
@@ -152,6 +159,8 @@
                 android:layout_height="wrap_content"
                 android:textColor="#000000"
                 tools:ignore="RtlHardcoded" />
+
+
 
             <View
                 android:layout_marginTop="@dimen/_5sdp"

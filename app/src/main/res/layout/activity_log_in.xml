@@ -123,15 +123,6 @@
     </LinearLayout>
 
 
-    <ImageView
-        android:id="@+id/imageView4"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="304dp"
-        android:paddingEnd="@dimen/_20sdp"
-        app:srcCompat="@drawable/icon" />
-
     <ProgressBar
         android:id="@+id/progress"
         style="?android:attr/progressBarStyle"

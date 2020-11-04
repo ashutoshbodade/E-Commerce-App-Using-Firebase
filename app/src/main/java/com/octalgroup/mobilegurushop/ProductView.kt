@@ -19,6 +19,8 @@ import android.view.View
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.MobileAds
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import io.reactivex.SingleObserver
@@ -83,6 +85,11 @@ class ProductView : AppCompatActivity() {
         val productsList = ArrayList<ReviewModel>()
         val adp = ReviewAdapter(this, productsList)
         var rating:Double=0.2
+
+
+        MobileAds.initialize(this, "ca-app-pub-1817777812087548/7975363256")
+        val adRequest = AdRequest.Builder().build()
+        adViewdashboard.loadAd(adRequest)
 
         db.collection("reviews").whereEqualTo("productid",id!!.toInt()).whereEqualTo("uid", userid().toString())
             .get()
