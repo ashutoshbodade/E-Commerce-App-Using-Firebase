@@ -12,15 +12,30 @@ import java.time.format.DateTimeFormatter
 val db = FirebaseFirestore.getInstance()
 
 public fun userid() : String {
+
     val user = FirebaseAuth.getInstance().currentUser
-    val uid:String = user!!.uid.toString()
-    return uid
+
+    if(user != null){
+        val uid:String = user!!.uid.toString()
+        return uid
+    }
+   else{
+        return "nouser"
+    }
+
 }
 
 public fun userno(): String {
     val user = FirebaseAuth.getInstance().currentUser
-    val uno:String = user!!.phoneNumber.toString()
-    return uno
+
+    if(user != null){
+        val uno:String = user!!.phoneNumber.toString()
+        return uno
+    }
+    else{
+        return "nouser"
+    }
+
 }
 
 
@@ -29,8 +44,15 @@ public fun userno(): String {
 
 public fun username(): String {
         val user = FirebaseAuth.getInstance().currentUser
+
+
+    if(user != null){
         val uname:String = user!!.displayName.toString()
         return uname
+    }
+    else{
+        return "nouser"
+    }
     }
 
 

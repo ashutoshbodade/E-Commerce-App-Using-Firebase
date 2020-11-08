@@ -1,8 +1,11 @@
 package com.octalgroup.mobilegurushop
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.firebase.auth.FirebaseAuth
 
 
@@ -46,21 +49,57 @@ class MainActivity : AppCompatActivity() {
                 }
 
             }*/
+        checkForUpdates()
+    }
+
+
+    private fun checkForUpdates() {
+        //1
+        val appUpdateManager = AppUpdateManagerFactory.create(baseContext)
+        val appUpdateInfo = appUpdateManager.appUpdateInfo
+        appUpdateInfo.addOnSuccessListener {
+            //2
+            if(it.availableVersionCode() <= BuildConfig.VERSION_CODE)
+            {
+                if (mAuth.currentUser == null)
+                {
+                    startActivity(Intent(this, WelcomeActivity::class.java))
+                    startActivity(intent)
+                }
+                else
+                {
+                    intent = Intent(this, HomeActivity::class.java)
+                    startActivity(intent)
+                }
+            }
+            else
+            {
+                Toast.makeText(this,"Update app to continue shopping ....",Toast.LENGTH_SHORT).show()
+
+                val uri = Uri.parse("market://details?id=" + BuildConfig.APPLICATION_ID)
+                var intent = Intent(Intent.ACTION_VIEW, uri)
+
+                intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or
+                        Intent.FLAG_ACTIVITY_NEW_DOCUMENT or
+                        Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+
+                if (intent.resolveActivity(this.packageManager) != null) {
+                    startActivity(intent)
+                } else {
+                    intent = Intent(Intent.ACTION_VIEW,
+                        Uri.parse("http://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID))
+                    if (intent.resolveActivity(this.packageManager) != null) {
+                        startActivity(intent)
+                        finish()
+                        finishAffinity()
+                    } else {
+                        Toast.makeText(this, "No play store or browser app", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+
+        }
 
     }
 
-    override fun onStart() {
-        super.onStart()
-
-        if (mAuth.currentUser == null)
-        {
-            startActivity(Intent(this, WelcomeActivity::class.java))
-            startActivity(intent)
-        }
-        else
-        {
-            intent = Intent(this, HomeActivity::class.java)
-            startActivity(intent)
-        }
-    }
 }

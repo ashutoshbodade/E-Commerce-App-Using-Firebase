@@ -6,10 +6,6 @@ import com.octalgroup.mobilegurushop.Database.CartItem
 import com.octalgroup.mobilegurushop.Database.LocalCartDataSource
 import com.octalgroup.mobilegurushop.EventBus.CountCartEvent
 import com.octalgroup.mobilegurushop.Model.ProductModel
-import com.octalgroup.mobilegurushop.ProductView
-import com.octalgroup.mobilegurushop.R
-import com.octalgroup.mobilegurushop.userid
-import com.octalgroup.mobilegurushop.userno
 import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
@@ -20,7 +16,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.octalgroup.mobilegurushop.*
 import io.reactivex.SingleObserver
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -29,6 +27,7 @@ import io.reactivex.schedulers.Schedulers
 
 class LatestProductsAdapter(var c: Context, var list: ArrayList<ProductModel>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>(), View.OnClickListener {
+    lateinit var mAuth: FirebaseAuth
 
     override fun onClick(view: View) {
         Toast.makeText(c, "hello", Toast.LENGTH_LONG).show()
@@ -79,44 +78,56 @@ class LatestProductsAdapter(var c: Context, var list: ArrayList<ProductModel>) :
             c.startActivity(intent)
         }
 
-        holder.buttoncart.setOnClickListener {
-            holder.buttoncart.visibility = View.INVISIBLE
+        mAuth = FirebaseAuth.getInstance()
 
-            val docData = hashMapOf(
-                "uid" to userid().toString(),
-                "userphone" to userno().toString(),
-                "productid" to list[position].id.toInt(),
-                "productname" to list[position].name.toString(),
-                "productimage" to list[position].image.toString(),
-                "productprice" to list[position].price.toString(),
-                "productquantity" to 1,
-                "productcategory" to list[position].category.toString(),
-                "productsubcategory" to list[position].subcategory.toString()
-            )
+        if(mAuth.currentUser!=null){
+            holder.buttoncart.setOnClickListener {
+                holder.buttoncart.visibility = View.INVISIBLE
+                val docData = hashMapOf(
+                    "uid" to userid().toString(),
+                    "userphone" to userno().toString(),
+                    "productid" to list[position].id.toInt(),
+                    "productname" to list[position].name.toString(),
+                    "productimage" to list[position].image.toString(),
+                    "productprice" to list[position].price.toString(),
+                    "productquantity" to 1,
+                    "productcategory" to list[position].category.toString(),
+                    "productsubcategory" to list[position].subcategory.toString()
+                )
 
-            val db = FirebaseFirestore.getInstance()
-            db.collection("users").document(userid()).collection("carttemp")
-                .document(list[position].id.toString())
-                .set(docData as Map<String, Any>)
-                .addOnSuccessListener { documentReference ->
-                }
-                .addOnFailureListener { e ->
-                }
-                .addOnCompleteListener {
-                    holder.buttoncart.visibility = View.GONE
-                    holder.buttonok.visibility = View.VISIBLE
-                    Toast.makeText(c, "Added to cart", Toast.LENGTH_SHORT).show()
-
-                    val saleref = db.collection("users").document(userid().toString())
-                    db.runTransaction { transaction ->
-                        val snapshot = transaction.get(saleref)
-                        val newsale = snapshot.getDouble("cart")!! + 1
-                        transaction.update(saleref, "cart", newsale)
+                val db = FirebaseFirestore.getInstance()
+                db.collection("users").document(userid()).collection("carttemp")
+                    .document(list[position].id.toString())
+                    .set(docData as Map<String, Any>)
+                    .addOnSuccessListener { documentReference ->
                     }
-                }
+                    .addOnFailureListener { e ->
+                    }
+                    .addOnCompleteListener {
+                        holder.buttoncart.visibility = View.GONE
+                        holder.buttonok.visibility = View.VISIBLE
+                        Toast.makeText(c, "Added to cart", Toast.LENGTH_SHORT).show()
+
+                        val saleref = db.collection("users").document(userid().toString())
+                        db.runTransaction { transaction ->
+                            val snapshot = transaction.get(saleref)
+                            val newsale = snapshot.getDouble("cart")!! + 1
+                            transaction.update(saleref, "cart", newsale)
+                        }
+                    }
 
 
+            }
         }
+        else{
+            holder.buttoncart.setOnClickListener {
+                Toast.makeText(c,"Log in to continue",Toast.LENGTH_SHORT).show()
+                val intent= Intent(c, LogInActivity::class.java)
+                c.startActivity(intent)
+            }
+        }
+
+
 
         Glide.with(c).load(list[position].image.toString())
             .centerCrop().into(holder.vimage)
@@ -159,31 +170,32 @@ class LatestProductsAdapter(var c: Context, var list: ArrayList<ProductModel>) :
 
           /*  vcqty = qty
             vcunit = unit*/
+            mAuth = FirebaseAuth.getInstance()
+            if(mAuth.currentUser!=null){
+                val db = FirebaseFirestore.getInstance()
+                db.collection("users").document(userid()).collection("carttemp").document(id.toString())
+                    .get()
+                    .addOnSuccessListener { document ->
+                        if (document != null) {
 
-            val db = FirebaseFirestore.getInstance()
-            db.collection("users").document(userid()).collection("carttemp").document(id.toString())
-                .get()
-                .addOnSuccessListener { document ->
-                    if (document != null) {
+                            val productname=document["productname"]
+                            if(productname!=null){
+                                println("datas exist $id")
+                                buttoncart.visibility = View.GONE
+                                buttonok.visibility = View.VISIBLE
+                            }
 
-                        val productname=document["productname"]
+                        } else {
+                            println("datas not exist $id")
 
-                        if(productname!=null){
-                            println("datas exist $id")
-                            buttoncart.visibility = View.GONE
-                            buttonok.visibility = View.VISIBLE
                         }
-
-
-                    } else {
-                        println("datas not exist $id")
-
                     }
-                }
-                .addOnFailureListener { exception ->
-                    println("datas failed exist $id")
+                    .addOnFailureListener { exception ->
+                        println("datas failed exist $id")
+                    }
+            }
 
-                }
+
 
 
 

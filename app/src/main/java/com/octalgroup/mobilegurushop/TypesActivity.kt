@@ -1,28 +1,21 @@
 package com.octalgroup.mobilegurushop
 
-import com.octalgroup.mobilegurushop.Adapter.ProductAdapter
+
 import com.octalgroup.mobilegurushop.Adapter.TypesAdapter
-import com.octalgroup.mobilegurushop.Database.CartDataSource
-import com.octalgroup.mobilegurushop.Database.CartDatabase
-import com.octalgroup.mobilegurushop.Database.LocalCartDataSource
-import com.octalgroup.mobilegurushop.EventBus.CountCartEvent
 import com.octalgroup.mobilegurushop.Model.TypesModel
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
-import io.reactivex.SingleObserver
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_types.*
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
+
 
 class TypesActivity : AppCompatActivity() {
 
+    lateinit var mAuth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,9 +24,9 @@ class TypesActivity : AppCompatActivity() {
        val name =  bundle!!.getString("name")
         val title =  bundle.getString("title")
         this.setTitle(title)
+        mAuth = FirebaseAuth.getInstance()
 
-
-
+        if(mAuth.currentUser!=null){
             val docRefs = db.collection("users").document(userid())
             docRefs.addSnapshotListener { snapshot, e ->
                 if (e != null) {
@@ -44,15 +37,24 @@ class TypesActivity : AppCompatActivity() {
                     fabtrain.count=traincart.toInt()
                 }
             }
-
-
-        fabtrain.visibility=View.VISIBLE
-        fabtrain.setOnClickListener {
-            startActivity(Intent(this, TrainCartActivity::class.java))
+            fabtrain.visibility=View.VISIBLE
+            fabtrain.setOnClickListener {
+                startActivity(Intent(this, TrainCartActivity::class.java))
+            }
         }
+        else
+        {
+            fabtrain.setOnClickListener {
+                Toast.makeText(this,"Log in to continue", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, LogInActivity::class.java))
+            }
+        }
+
+
+
+
         loadtypes(name!!)
-        closednotice.visibility = View.GONE
-        close.visibility = View.GONE
+
 
     }
 

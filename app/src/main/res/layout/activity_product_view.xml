@@ -405,18 +405,5 @@
         app:srcCompat="@drawable/ic_add_shopping_cart_black_24dp"
         tools:ignore="VectorDrawableCompat" />
 
-    <com.andremion.counterfab.CounterFab
-        android:id="@+id/fab2"
-        android:visibility="gone"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="@dimen/_50sdp"
-        android:layout_marginRight="@dimen/_10sdp"
-        android:clickable="true"
-        android:tint="@android:color/white"
-        app:srcCompat="@drawable/ic_add_shopping_cart_black_24dp"
-        tools:ignore="VectorDrawableCompat" />
-
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

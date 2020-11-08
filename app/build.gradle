@@ -19,8 +19,8 @@ android {
         applicationId "com.octalgroup.mobilegurushop"
         minSdkVersion 19
         targetSdkVersion 30
-        versionCode 6
-        versionName "6.0"
+        versionCode 7
+        versionName "7.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
@@ -95,5 +95,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-crashlytics:17.2.2'
 
     implementation 'com.google.android.gms:play-services-ads:19.5.0'
+
+    implementation 'com.google.android.play:core:1.8.3'
 
 }

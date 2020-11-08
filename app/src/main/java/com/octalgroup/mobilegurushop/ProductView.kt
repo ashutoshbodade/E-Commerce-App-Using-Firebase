@@ -1,6 +1,6 @@
 package com.octalgroup.mobilegurushop
 
-import com.octalgroup.mobilegurushop.Adapter.ProductAdapter
+
 import com.octalgroup.mobilegurushop.Adapter.ReviewAdapter
 import com.octalgroup.mobilegurushop.Database.CartDataSource
 import com.octalgroup.mobilegurushop.Database.CartDatabase
@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import io.reactivex.SingleObserver
@@ -37,42 +38,12 @@ import java.math.RoundingMode
 
 class ProductView : AppCompatActivity() {
 
+    lateinit var mAuth: FirebaseAuth
 
-    private val compositeDisposable: CompositeDisposable
-    private val cartDataSource: CartDataSource
 
-    private var TotalPrice: String? =null
     val TAG:String = this::class.toString()
     private var data: String? =null
 
-    init {
-        compositeDisposable = CompositeDisposable()
-        cartDataSource = LocalCartDataSource(CartDatabase.getInstance(this).cartDAO())
-    }
-
-
-    var adapter: ProductAdapter?=null
-
-    override fun onStart() {
-        super.onStart()
-        EventBus.getDefault().register(this)
-    }
-
-    override fun onStop() {
-        EventBus.getDefault().unregister(this)
-        if(adapter!=null)
-            adapter!!.onStop()
-        if (compositeDisposable!=null)
-            compositeDisposable.clear()
-
-        super.onStop()
-    }
-
-
-    override fun onResume() {
-        super.onResume()
-        countCartItem()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,7 +51,7 @@ class ProductView : AppCompatActivity() {
 
         val bundle: Bundle?= intent.extras
         val id =  bundle!!.getString("id")
-
+        mAuth = FirebaseAuth.getInstance()
 
         val productsList = ArrayList<ReviewModel>()
         val adp = ReviewAdapter(this, productsList)
@@ -91,60 +62,166 @@ class ProductView : AppCompatActivity() {
         val adRequest = AdRequest.Builder().build()
         adViewdashboard.loadAd(adRequest)
 
-        db.collection("reviews").whereEqualTo("productid",id!!.toInt()).whereEqualTo("uid", userid().toString())
-            .get()
-            .addOnSuccessListener { documents ->
-                for (document in documents) {
-                    if (document != null) {
-                        rating =document["rating"] as Double
-                        userRatingBar.rating=rating.toFloat()
-                        userRating.text=rating.toString()
-                        val review:String=document["review"] as String
-                        userReview.text=review
-                        val username:String=document["username"] as String
-                        if (username.length!=0)
-                        {
-                          userTextImage.text=username.substring(0,1).toString()
+        if(mAuth.currentUser!=null){
+            db.collection("reviews").whereEqualTo("productid",id!!.toInt()).whereEqualTo("uid", userid().toString())
+                .get()
+                .addOnSuccessListener { documents ->
+                    for (document in documents) {
+                        if (document != null) {
+                            rating =document["rating"] as Double
+                            userRatingBar.rating=rating.toFloat()
+                            userRating.text=rating.toString()
+                            val review:String=document["review"] as String
+                            userReview.text=review
+                            val username:String=document["username"] as String
+                            if (username.length!=0)
+                            {
+                                userTextImage.text=username.substring(0,1).toString()
+                            }
+                            userName.text=username
                         }
-                        userName.text=username
                     }
                 }
-            }
-            .addOnCompleteListener {
-                if(rating==0.2)
-                {
-                    writeReview.visibility=View.VISIBLE
-                }
-                else
-                {
-                    userReviewView.visibility=View.VISIBLE
-                }
-            }
-
-
-        db.collection("reviews").whereEqualTo("productid",id.toInt()).orderBy("id", Query.Direction.DESCENDING).limit(4)
-            .get()
-            .addOnSuccessListener { documents ->
-
-                for (document in documents) {
-                    if (document != null) {
-                        val products = document.toObject(ReviewModel::class.java)
-                        productsList.add(products)
+                .addOnCompleteListener {
+                    if(rating==0.2)
+                    {
+                        writeReview.visibility=View.VISIBLE
+                    }
+                    else
+                    {
+                        userReviewView.visibility=View.VISIBLE
                     }
                 }
-                rvReviews.layoutManager = LinearLayoutManager(applicationContext, LinearLayoutManager.VERTICAL, false )
-                rvReviews.adapter = adp
-                rvReviews.visibility = View.VISIBLE
+            btnSubmitReview.setOnClickListener {
+
+                val rating = ratingBar.rating.toFloat()
+
+                val review = txtReview.text.toString()
+                val username = username().toString()
+                val uid = userid().toString()
+                val productid= id.toInt()
+                btnSubmitReview.isClickable=false
+                btnSubmitReview.isActivated=false
+                writeReview.visibility=View.GONE
+                thanksView.visibility=View.VISIBLE
+
+
+
+                val sfDocRef = db.collection("ratings").document(productid.toString())
+                db.runTransaction { transaction ->
+                    val snapshot = transaction.get(sfDocRef)
+                    val newratings = snapshot.getDouble("totalratings")!! + 1
+
+
+                    if(snapshot.getDouble("ratingaverage") == 0.0){
+                        val ratings = snapshot.getDouble("ratingaverage")!! + rating
+                        val average = ratings
+                        transaction.update(sfDocRef, "totalratings", newratings)
+                        transaction.update(sfDocRef, "ratingaverage", average)
+                    }
+                    else
+                    {
+                        val ratings = snapshot.getDouble("ratingaverage")!! + rating
+                        val average = ratings / 2
+                        transaction.update(sfDocRef, "totalratings", newratings)
+                        transaction.update(sfDocRef, "ratingaverage", average)
+                    }
+
+
+
+
+
+
+
+                    // Success
+                    null
+                }.addOnSuccessListener { Log.d(TAG, "Transaction success!") }
+                    .addOnFailureListener { e -> Log.w(TAG, "Transaction failure.", e)
+                        val docorderID = hashMapOf(
+                            "totalratings" to 1.0,
+                            "ratingaverage" to rating.toDouble()
+                        )
+                        db.collection("ratings").document(productid.toString())
+                            .set(docorderID as Map<String, Any>)
+                            .addOnSuccessListener { documentReference ->
+
+                            }
+                    }
+
+                val ratingno = db.collection("reviews").document("count")
+                db.runTransaction { transaction ->
+                    val snapshot = transaction.get(ratingno)
+
+                    // Note: this could be done without a transaction
+                    //       by updating the population using FieldValue.increment()
+                    val newreview = snapshot.getDouble("count")!! + 1
+                    transaction.update(ratingno, "count", newreview)
+
+                    val docorderID = hashMapOf(
+                        "id" to newreview,
+                        "rating" to rating,
+                        "review" to review,
+                        "username" to username,
+                        "uid" to uid,
+                        "productid" to productid
+                    )
+                    db.collection("reviews").document("review"+newreview)
+                        .set(docorderID as Map<String, Any>)
+
+                    // Success
+                    null
+                }.addOnSuccessListener {}.addOnFailureListener { e -> Log.w(TAG, "Transaction failure.", e) }
+
+
+
+
+            }
+            fab.setOnClickListener {
+                startActivity(Intent(this, TrainCartActivity::class.java))
             }
 
+            ratingBar.setOnRatingBarChangeListener { ratingBar, rating, fromUser ->
 
+                if (rating<3)
+                {
+                    submitrating.text="Thanks please.. decribe How can we improve?"
+                }
+                else if (rating<=5)
+                {
+                    submitrating.text="Thanks please.. decribe your best experience."
+                }
+                submitreview.visibility=View.VISIBLE
+            }
 
-        fab2.setOnClickListener {
-            startActivity(Intent(this, TrainCartActivity::class.java))
         }
 
 
-        calculateTotalPrice()
+
+
+
+        if (id != null) {
+            db.collection("reviews").whereEqualTo("productid",id.toInt()).orderBy("id", Query.Direction.DESCENDING).limit(4)
+                .get()
+                .addOnSuccessListener { documents ->
+
+                    for (document in documents) {
+                        if (document != null) {
+                            val products = document.toObject(ReviewModel::class.java)
+                            productsList.add(products)
+                        }
+                    }
+                    rvReviews.layoutManager = LinearLayoutManager(applicationContext, LinearLayoutManager.VERTICAL, false )
+                    rvReviews.adapter = adp
+                    rvReviews.visibility = View.VISIBLE
+                }
+        }
+
+
+
+
+
+
+
 
 
         db.collection("ratings").document(id.toString())
@@ -171,108 +248,10 @@ class ProductView : AppCompatActivity() {
                 }
 
 
-        ratingBar.setOnRatingBarChangeListener { ratingBar, rating, fromUser ->
-
-            if (rating<3)
-            {
-                submitrating.text="Thanks please.. decribe How can we improve?"
-            }
-            else if (rating<=5)
-            {
-                submitrating.text="Thanks please.. decribe your best experience."
-            }
-            submitreview.visibility=View.VISIBLE
-        }
-
-        btnSubmitReview.setOnClickListener {
-
-            val rating = ratingBar.rating.toFloat()
-
-            val review = txtReview.text.toString()
-            val username = username().toString()
-            val uid = userid().toString()
-            val productid= id.toInt()
-            btnSubmitReview.isClickable=false
-            btnSubmitReview.isActivated=false
-            writeReview.visibility=View.GONE
-            thanksView.visibility=View.VISIBLE
-
-
-
-            val sfDocRef = db.collection("ratings").document(productid.toString())
-                db.runTransaction { transaction ->
-                val snapshot = transaction.get(sfDocRef)
-                val newratings = snapshot.getDouble("totalratings")!! + 1
-
-
-                    if(snapshot.getDouble("ratingaverage") == 0.0){
-                        val ratings = snapshot.getDouble("ratingaverage")!! + rating
-                        val average = ratings
-                        transaction.update(sfDocRef, "totalratings", newratings)
-                        transaction.update(sfDocRef, "ratingaverage", average)
-                    }
-                    else
-                    {
-                        val ratings = snapshot.getDouble("ratingaverage")!! + rating
-                        val average = ratings / 2
-                        transaction.update(sfDocRef, "totalratings", newratings)
-                        transaction.update(sfDocRef, "ratingaverage", average)
-                    }
-
-
-
-
-
-
-
-                // Success
-                null
-            }.addOnSuccessListener { Log.d(TAG, "Transaction success!") }
-            .addOnFailureListener { e -> Log.w(TAG, "Transaction failure.", e)
-                val docorderID = hashMapOf(
-                    "totalratings" to 1.0,
-                    "ratingaverage" to rating.toDouble()
-                )
-                db.collection("ratings").document(productid.toString())
-                    .set(docorderID as Map<String, Any>)
-                    .addOnSuccessListener { documentReference ->
-
-                    }
-            }
-
-            val ratingno = db.collection("reviews").document("count")
-            db.runTransaction { transaction ->
-                val snapshot = transaction.get(ratingno)
-
-                // Note: this could be done without a transaction
-                //       by updating the population using FieldValue.increment()
-                val newreview = snapshot.getDouble("count")!! + 1
-                transaction.update(ratingno, "count", newreview)
-
-                val docorderID = hashMapOf(
-                    "id" to newreview,
-                    "rating" to rating,
-                    "review" to review,
-                    "username" to username,
-                    "uid" to uid,
-                    "productid" to productid
-                )
-                db.collection("reviews").document("review"+newreview)
-                    .set(docorderID as Map<String, Any>)
-
-                // Success
-                null
-            }.addOnSuccessListener {}.addOnFailureListener { e -> Log.w(TAG, "Transaction failure.", e) }
-
-
-
-
-        }
-
 
 
         db.collection("products")
-            .whereEqualTo("id", id.toInt())
+            .whereEqualTo("id", id!!.toInt())
             .get()
             .addOnSuccessListener { documents ->
                 for (document in documents) {
@@ -297,7 +276,19 @@ class ProductView : AppCompatActivity() {
 
 
 
+                        if(mAuth.currentUser!=null){
 
+                            val docRef = db.collection("users").document(userid())
+                            docRef.addSnapshotListener { snapshot, e ->
+                                if (e != null) {
+                                    return@addSnapshotListener
+                                }
+                                if (snapshot != null && snapshot.exists()) {
+
+                                    val traincart:Number=snapshot["cart"] as Number
+                                    fab.count=traincart.toInt()
+                                }
+                            }
 
                             val db = FirebaseFirestore.getInstance()
                             db.collection("users").document(userid()).collection("traincarttemp").document(id.toString())
@@ -323,42 +314,9 @@ class ProductView : AppCompatActivity() {
                                 }
                                 .addOnFailureListener { exception ->
                                     println("datas failed exist $id")
-
                                 }
-                            fab.visibility=View.GONE
-                            fab2.visibility=View.VISIBLE
-                            txtName.text=name+" ($subcategory $category)"
 
-                            val docRef = db.collection("users").document(userid())
-                            docRef.addSnapshotListener { snapshot, e ->
-                                if (e != null) {
-                                    return@addSnapshotListener
-                                }
-                                if (snapshot != null && snapshot.exists()) {
 
-                                    val traincart:Number=snapshot["cart"] as Number
-                                    fab2.count=traincart.toInt()
-                                }
-                            }
-
-                        val description:String=document["description"] as String
-
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                            txtDesc.setText(Html.fromHtml(description, Html.FROM_HTML_MODE_COMPACT));
-                        } else {
-                            txtDesc.setText(Html.fromHtml(description));
-                        }
-
-                        val a=price.toInt()
-                        val b=mrp.toInt()
-                        val c:Double=b.toDouble()/100
-                        val d:Double=b.toDouble()-a
-                        val e:Double=d/c
-                        val f = BigDecimal(e).setScale(2, RoundingMode.HALF_EVEN)
-                        txtDiscount.text=f.toString()+"% off"
-                        productView.visibility=View.VISIBLE
-                        loadingproductinfo.visibility=View.GONE
-                        val cartItem = CartItem()
 
                         btnAddToCart.setOnClickListener {
 
@@ -443,11 +401,50 @@ class ProductView : AppCompatActivity() {
                                     btnBuyNow.text="Proceed to checkout"
                                     startActivity(Intent(this, TrainCartActivity::class.java))
                                 }
-
-
-
-
                         }
+                        }
+                        else
+                        {
+                            fab.setOnClickListener {
+                                Toast.makeText(this,"Log in to continue", Toast.LENGTH_SHORT).show()
+                                startActivity(Intent(this, LogInActivity::class.java))
+                            }
+                            btnBuyNow.setOnClickListener {
+                                Toast.makeText(this,"Log in to continue", Toast.LENGTH_SHORT).show()
+                                startActivity(Intent(this, LogInActivity::class.java))
+                            }
+                            btnAddToCart.setOnClickListener {
+                                Toast.makeText(this,"Log in to continue", Toast.LENGTH_SHORT).show()
+                                startActivity(Intent(this, LogInActivity::class.java))
+                            }
+                        }
+
+
+
+
+                        fab.visibility=View.VISIBLE
+                        txtName.text=name+" ($subcategory $category)"
+                        val description:String=document["description"] as String
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                            txtDesc.setText(Html.fromHtml(description, Html.FROM_HTML_MODE_COMPACT));
+                        } else {
+                            txtDesc.setText(Html.fromHtml(description));
+                        }
+
+                        val a=price.toInt()
+                        val b=mrp.toInt()
+                        val c:Double=b.toDouble()/100
+                        val d:Double=b.toDouble()-a
+                        val e:Double=d/c
+                        val f = BigDecimal(e).setScale(2, RoundingMode.HALF_EVEN)
+                        txtDiscount.text=f.toString()+"% off"
+                        productView.visibility=View.VISIBLE
+                        loadingproductinfo.visibility=View.GONE
+                        val cartItem = CartItem()
+
+
+
 
 
                     }
@@ -469,53 +466,10 @@ class ProductView : AppCompatActivity() {
 
     }
 
-    private fun countCartItem(){
-        cartDataSource.countItemInCart(userid())
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object: SingleObserver<Int> {
-                override fun onSuccess(t: Int) {
-                    fab.count= t
-                }
 
-                override fun onSubscribe(d: Disposable) {
-                }
 
-                override fun onError(e: Throwable) {
-                }
 
-            })
-    }
 
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    fun onCountCartEvent(event: CountCartEvent)
-    {
-        if (event.isSuccess)
-        {
-            countCartItem()
-        }
-    }
-
-    private fun calculateTotalPrice() {
-
-        cartDataSource.sumPrice(userid())
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object: SingleObserver<Double>{
-                override fun onSuccess(price: Double) {
-                    TotalPrice=price.toString()
-                }
-
-                override fun onSubscribe(d: Disposable) {
-
-                }
-
-                override fun onError(e: Throwable) {
-
-                }
-            })
-
-    }
 
 
 

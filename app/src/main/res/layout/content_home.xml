@@ -23,8 +23,7 @@
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             app:titleTextColor="#FFFF">
             <ImageView
-                android:id="@+id/logoXmarks"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="@dimen/_32sdp"
                 android:adjustViewBounds="true"
                 android:src="@drawable/icon" />
@@ -216,7 +215,7 @@
         <androidx.viewpager.widget.ViewPager
             android:id="@+id/viewPagerh"
             android:layout_width="match_parent"
-            android:layout_height="200dp">
+            android:layout_height="@dimen/_160sdp">
         </androidx.viewpager.widget.ViewPager>
 
     <androidx.recyclerview.widget.RecyclerView

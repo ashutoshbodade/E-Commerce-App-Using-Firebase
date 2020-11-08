@@ -15,25 +15,7 @@
         app:lottie_autoPlay="true"
         app:lottie_rawRes="@raw/wave"/>
 
-    <com.airbnb.lottie.LottieAnimationView
-        android:id="@+id/close"
-        android:visibility="gone"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/_350sdp"
-        app:lottie_loop="true"
-        app:lottie_autoPlay="true"
-        app:lottie_rawRes="@raw/close"/>
 
-    <TextView
-        android:visibility="gone"
-        android:id="@+id/closednotice"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="@dimen/_120sdp"
-        android:text="Restaurant is Closed Now \n Check back Tommorow"
-        android:textAlignment="center"
-        android:textColor="@color/colorPrimary" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvTypes"

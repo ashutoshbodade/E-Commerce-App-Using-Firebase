@@ -58,7 +58,7 @@ class OrderProductAdapter(var c: Context, var list: ArrayList<OrderProductModel>
 
 
         fun bind(varproductname: String, varproductprice: String, varproductquantity: String, varproductsize: String, varproducttotal: String, varproducttype: String) {
-            v_productname.text="$varproductname ($varproducttype)"
+            v_productname.text="$varproductname"
             v_productprice.text="$varproductprice ₹ "
             v_productquantity.text=varproductquantity
             v_productsize.text=varproductsize

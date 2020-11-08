@@ -20,13 +20,15 @@ class TrainCartActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_train_products)
 
-
+        this.setTitle("Cart")
 
 
         btnCheckoutTrain.setOnClickListener {
-            val intent=Intent(this,PlaceTrainOrder::class.java)
+            val intent=Intent(this,SelectAddressActivity::class.java)
             startActivity(intent)
         }
+
+
 
 
         db.collection("users").document(userid()).collection("carttemp")
@@ -59,6 +61,17 @@ class TrainCartActivity : AppCompatActivity() {
                     totalprice = totalprice + items
                 }
                 txtTotalPrice.text = StringBuilder("Total: ").append(totalprice.toString())
+
+
+                if(totalprice<1){
+                    emptycart.visibility = View.VISIBLE
+                    paymentproceed.visibility=View.GONE
+                }
+                else
+                {
+                    emptycart.visibility = View.GONE
+                    paymentproceed.visibility=View.VISIBLE
+                }
             }
 
 

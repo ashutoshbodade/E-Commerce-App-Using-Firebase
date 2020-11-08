@@ -3,7 +3,9 @@ package com.octalgroup.mobilegurushop
 import com.octalgroup.mobilegurushop.Adapter.CartTrainAdapter
 import com.octalgroup.mobilegurushop.Model.TrainCartModel
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -44,19 +46,60 @@ class PlaceTrainOrder : AppCompatActivity() , PaymentResultListener {
         setContentView(R.layout.activity_place_train_order)
         check()
 
+
+        val bundle: Bundle?= intent.extras
+        val deliveryaddress =  bundle!!.getString("deliveryaddress")
+
         btnCOD.setOnClickListener {
-            rvTypesProgressBar.visibility = View.VISIBLE
-            rvTProducts.visibility = View.GONE
-            layout.visibility=View.GONE
-            placeorder("COD", "Unnpaid","")
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Are you sure want to place order.")
+            builder.setMessage("Payment method COD")
+
+            //builder.setPositiveButton("OK", DialogInterface.OnClickListener(function = x))
+
+            builder.setPositiveButton("Yes") { dialog, which ->
+                rvTypesProgressBar.visibility = View.VISIBLE
+                rvTProducts.visibility = View.GONE
+                layout.visibility=View.GONE
+                placeorder("COD", "Unnpaid","")
+            }
+
+            builder.setNegativeButton("No") { dialog, which ->
+
+            }
+
+            builder.show()
+
+
         }
 
         btnOnlinePay.setOnClickListener {
-            rvTypesProgressBar.visibility = View.VISIBLE
-            rvTProducts.visibility = View.GONE
-            layout.visibility=View.GONE
-            startPayment(finaltotalprice)
+
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Are you sure want to place order.")
+            builder.setMessage("Payment method Online")
+
+            //builder.setPositiveButton("OK", DialogInterface.OnClickListener(function = x))
+
+            builder.setPositiveButton("Yes") { dialog, which ->
+
+
+                rvTypesProgressBar.visibility = View.VISIBLE
+                rvTProducts.visibility = View.GONE
+                layout.visibility=View.GONE
+                startPayment(finaltotalprice)
+            }
+
+            builder.setNegativeButton("No") { dialog, which ->
+
+            }
+
+            builder.show()
+
         }
+
+
+        txtAddress.text = deliveryaddress
 
     }
 
@@ -74,7 +117,7 @@ class PlaceTrainOrder : AppCompatActivity() , PaymentResultListener {
                 "orderid" to orderid.toInt(),
                 "userid" to userid.toString(),
                 "userphone" to userphone.toString(),
-                "deliveryaddress" to  txtAddress.text.toString(),
+                "deliveryaddress" to  txtAddress.text,
                 "supportnumber" to supportnumber.toString(),
                 "orderstatus" to orderstatus.toString(),
                 "paymentmode" to paymentmode.toString(),
@@ -107,7 +150,6 @@ class PlaceTrainOrder : AppCompatActivity() , PaymentResultListener {
             db.collection("orders").document("order"+orderid.toString())
                 .set(docorderID as Map<String, Any>)
                 .addOnSuccessListener { documentReference ->
-
                     bookedsave()
                     saveorderitems(orderid)
                 }
@@ -211,17 +253,6 @@ class PlaceTrainOrder : AppCompatActivity() , PaymentResultListener {
         layout.visibility=View.VISIBLE
         close.visibility=View.GONE
 
-
-        db.collection("users")
-            .whereEqualTo("uid",userid())
-            .get()
-            .addOnSuccessListener { documents ->
-                for (document in documents) {
-                    val address =document["uaddress"] as String
-                    txtAddress.setText(address)
-
-                }
-            }
 
         db.collection("users").document(userid()).collection("carttemp")
             .addSnapshotListener { value, e ->

@@ -39,11 +39,6 @@ class ReviewAdapter(var c: Context, var list:ArrayList<ReviewModel>):
             list[position].username.toString()
             )
 
-
-
-
-
-
     }
 
 

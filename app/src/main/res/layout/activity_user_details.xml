@@ -45,12 +45,13 @@
     <EditText
         android:textColor="#2B2929"
         android:textSize="@dimen/_15sdp"
-        android:id="@+id/edttxtAddress"
+        android:id="@+id/edttxtPin"
         android:layout_width="match_parent"
         android:layout_height="@dimen/_40sdp"
         android:ems="10"
-        android:inputType="textPersonName"
-        android:hint="Address"
+        android:inputType="number"
+        android:hint="Pincode"
+
         android:background="@drawable/bgbutton"
         android:paddingLeft="@dimen/_10sdp"
         android:layout_marginBottom="@dimen/_5sdp"
@@ -117,6 +118,8 @@
                 android:textSize="@dimen/_12sdp" />
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
+
 
     </LinearLayout>
 </LinearLayout>

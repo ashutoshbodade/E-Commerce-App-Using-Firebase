@@ -1,52 +1,50 @@
 package com.octalgroup.mobilegurushop
 
 import com.octalgroup.mobilegurushop.Adapter.AllProductsViewAdapter
-import com.octalgroup.mobilegurushop.Adapter.ProductAdapter
-import com.octalgroup.mobilegurushop.Database.CartDataSource
-import com.octalgroup.mobilegurushop.Database.CartDatabase
-import com.octalgroup.mobilegurushop.Database.LocalCartDataSource
-import com.octalgroup.mobilegurushop.EventBus.CountCartEvent
 import com.octalgroup.mobilegurushop.Model.ProductModel
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import io.reactivex.SingleObserver
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.activity_all_product_view.*
 import kotlinx.android.synthetic.main.activity_all_product_view.fab
-import kotlinx.android.synthetic.main.activity_home.*
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 
 class AllProductViewActivity : AppCompatActivity() {
 
-
+    lateinit var mAuth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_all_product_view)
 
+        mAuth = FirebaseAuth.getInstance()
 
-        val docRef = db.collection("users").document(userid())
-        docRef.addSnapshotListener { snapshot, e ->
-            if (e != null) {
-                return@addSnapshotListener
+        if(mAuth.currentUser!=null){
+            val docRef = db.collection("users").document(userid())
+            docRef.addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    return@addSnapshotListener
+                }
+                if (snapshot != null && snapshot.exists()) {
+                    val traincart:Number=snapshot["cart"] as Number
+                    fab.count=traincart.toInt()
+                }
             }
-            if (snapshot != null && snapshot.exists()) {
-                val traincart:Number=snapshot["cart"] as Number
-                fab.count=traincart.toInt()
+            fab.setOnClickListener { view: View? ->
+                startActivity(Intent(this, TrainCartActivity::class.java))
+            }
+        }
+        else
+        {
+            fab.setOnClickListener { view: View? ->
+                Toast.makeText(this,"Log in to continue", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, LogInActivity::class.java))
             }
         }
 
-
-        fab.setOnClickListener { view: View? ->
-            startActivity(Intent(this, TrainCartActivity::class.java))
-        }
 
         val bundle: Bundle?= intent.extras
         val id =  bundle!!.getString("id")

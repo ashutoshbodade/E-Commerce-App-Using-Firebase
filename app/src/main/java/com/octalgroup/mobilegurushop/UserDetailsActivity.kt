@@ -50,12 +50,10 @@ class UserDetailsActivity : AppCompatActivity() {
 
                         val uname:String=document["uname"] as String
                         edttxtName.setText(uname)
-                        val uaddress:String=document["uaddress"] as String
-                        edttxtAddress.setText(uaddress)
+                        val upin:String=document["upin"] as String
+                        edttxtPin.setText(upin)
                         val uemail:String=document["uemail"] as String
                         edttxtEmail.setText(uemail)
-
-
 
                     }
 
@@ -72,7 +70,6 @@ class UserDetailsActivity : AppCompatActivity() {
 
 
         btnContinue.setOnClickListener {
-
             FirebaseInstanceId.getInstance().instanceId
                 .addOnCompleteListener(OnCompleteListener { task ->
                     if (!task.isSuccessful) {
@@ -91,7 +88,7 @@ class UserDetailsActivity : AppCompatActivity() {
                     // Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
 
                     val uname=edttxtName.text.toString()
-                    val uaddress=edttxtAddress.text.toString()
+                    val upin=edttxtPin.text.toString()
                     val uemail=edttxtEmail.text.toString()
 
 
@@ -106,7 +103,7 @@ class UserDetailsActivity : AppCompatActivity() {
                             }
                         }
 
-                    if(edttxtName.text.trim().length>0 && edttxtAddress.text.trim().length>0){
+                    if(edttxtName.text.trim().length>0 && edttxtPin.text.trim().length>0){
                         btnContinueTxt.text="SAVING DATA PLEASE WAIT ..."
                         btnContinue.isEnabled = false
                         btnContinue.isClickable = false
@@ -115,8 +112,8 @@ class UserDetailsActivity : AppCompatActivity() {
                         val userdata = hashMapOf(
                             "uid" to uid.toString(),
                             "uname" to uname,
-                            "uaddress" to uaddress,
-                            "uemail" to uemail,
+                            "upin" to upin,
+                            "uemail" to edttxtEmail.text.toString(),
                             "uphone" to uphone,
                             "usertoken" to token,
                             "cart" to 0

@@ -11,8 +11,12 @@ class WelcomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_welcome)
 
-        btnEnter.setOnClickListener {
+        btnLogin.setOnClickListener {
             startActivity(Intent(this, LogInActivity::class.java))
+        }
+
+        btnEnter.setOnClickListener {
+            startActivity(Intent(this, HomeActivity::class.java))
         }
     }
 }

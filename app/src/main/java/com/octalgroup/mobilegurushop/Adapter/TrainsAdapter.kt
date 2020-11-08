@@ -1,5 +1,5 @@
 package com.octalgroup.mobilegurushop.Adapter
-
+/*
 import com.octalgroup.mobilegurushop.Model.TrainsModel
 import com.octalgroup.mobilegurushop.PlaceTrainOrder
 import com.octalgroup.mobilegurushop.R
@@ -78,4 +78,4 @@ class TrainsAdapter(var c: Context, var list:ArrayList<TrainsModel>):
 
     }
 
-}
+}*/

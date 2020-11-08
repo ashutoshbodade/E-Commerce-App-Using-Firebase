@@ -28,6 +28,7 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.messaging.FirebaseMessaging
 import com.razorpay.Checkout
 import es.dmoral.toasty.Toasty
+import io.grpc.InternalChannelz.id
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.activity_home.fab
 import kotlinx.android.synthetic.main.activity_product_view.*
@@ -41,15 +42,13 @@ class HomeActivity : AppCompatActivity() {
 
     lateinit var mAuth: FirebaseAuth
 
-    var adapter: ProductAdapter? = null
+
     val TAG: String = this::class.toString()
 
 
     override fun onStop() {
         EventBus.getDefault().unregister(this)
-        if (adapter != null)
-            adapter!!.onStop()
-        super.onStop()
+            super.onStop()
     }
 
     val productsList = ArrayList<ReviewModel>()
@@ -67,11 +66,92 @@ class HomeActivity : AppCompatActivity() {
 
         viewHome()
 
+
+
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        val item = menu.findItem(R.id.logout)
+        if(mAuth.currentUser!=null){
+            item.title = "Log Out"
+        }
+        else
+        {
+            item.title = "Log In"
+        }
+
+        return super.onPrepareOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.orders -> {
+                if(mAuth.currentUser!=null){
+                    startActivity(Intent(this, OrdersViewActivity::class.java))
+                    true
+                }
+                else{
+                    Toast.makeText(this,"Log in to continue", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, LogInActivity::class.java))
+                    true
+                }
+
+            }
+            R.id.profile -> {
+
+                if(mAuth.currentUser!=null){
+                    startActivity(Intent(this, UserDetailsActivity::class.java))
+                    true
+                }
+                else{
+                    Toast.makeText(this,"Log in to continue", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, LogInActivity::class.java))
+                    true
+                }
+
+            }
+            R.id.address -> {
+
+                if(mAuth.currentUser!=null){
+                    startActivity(Intent(this, AddressViewActivity::class.java))
+                    true
+                }
+                else{
+                    Toast.makeText(this,"Log in to continue", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, LogInActivity::class.java))
+                    true
+                }
+
+            }
+            R.id.logout -> {
+                if(mAuth.currentUser!=null){
+                    mAuth = FirebaseAuth.getInstance()
+                    mAuth.signOut()
+                    startActivity(Intent(this, LogInActivity::class.java))
+                    Toasty.warning(
+                        applicationContext,
+                        "Logged out Successfully :)!",
+                        Toast.LENGTH_SHORT,
+                        true
+                    ).show();
+                }
+                else
+                {
+                    startActivity(Intent(this, LogInActivity::class.java))
+                }
+
+
+                return true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
     fun viewHome() {
 
-        toolBar.inflateMenu(R.menu.menu_item)
+       // toolBar.inflateMenu(R.menu.menu_item)
+
+       // toolBar.OnMenuItemClickListener
+        setSupportActionBar(toolBar)
 
        /* toolBar.setOnMenuItemClickListener(object : Toolbar.OnMenuItemClickListener() {
             fun onMenuItemClick(item: MenuItem): Boolean {
@@ -88,24 +168,46 @@ class HomeActivity : AppCompatActivity() {
 
         })*/
 
-        val docRef = db.collection("users").document(userid())
-        docRef.addSnapshotListener { snapshot, e ->
-            if (e != null) {
-                return@addSnapshotListener
+        mAuth = FirebaseAuth.getInstance()
+
+        if(mAuth.currentUser != null){
+            val docRef = db.collection("users").document(userid())
+            docRef.addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    return@addSnapshotListener
+                }
+                if (snapshot != null && snapshot.exists()) {
+                    val traincart:Number=snapshot["cart"] as Number
+                    fab.count=traincart.toInt()
+                }
             }
-            if (snapshot != null && snapshot.exists()) {
-                val traincart:Number=snapshot["cart"] as Number
-                fab.count=traincart.toInt()
+            fab.setOnClickListener { view: View? ->
+                startActivity(Intent(this, TrainCartActivity::class.java))
             }
+            btnOrders.visibility=View.VISIBLE
+            btnOrders.setOnClickListener {
+                startActivity(Intent(this, OrdersViewActivity::class.java))
+            }
+        }
+        else{
+            fab.setOnClickListener { view: View? ->
+                Toast.makeText(this,"Log in to continue", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, LogInActivity::class.java))
+            }
+            btnOrders.setOnClickListener {
+                Toast.makeText(this,"Log in to continue", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, LogInActivity::class.java))
+            }
+            btnOrders.visibility=View.GONE
         }
 
-        btnOrders.setOnClickListener {
-            startActivity(Intent(this, OrdersViewActivity::class.java))
-        }
 
-        fab.setOnClickListener { view: View? ->
-            startActivity(Intent(this, TrainCartActivity::class.java))
-        }
+
+
+
+
+
+
 
         btnMobile.setOnClickListener {
             val intent = Intent(this, TypesActivity::class.java)
@@ -342,34 +444,9 @@ class HomeActivity : AppCompatActivity() {
         builder.show()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-        return when (item.itemId) {
-            R.id.orders -> {
-                startActivity(Intent(this, OrdersViewActivity::class.java))
-                true
-            }
-            R.id.profile -> {
-                startActivity(Intent(this, UserDetailsActivity::class.java))
-                return true
-            }
-            R.id.logout -> {
-                mAuth = FirebaseAuth.getInstance()
-                mAuth.signOut()
-                startActivity(Intent(this, LogInActivity::class.java))
-                Toasty.warning(
-                    applicationContext,
-                    "Logged out Successfully :)!",
-                    Toast.LENGTH_SHORT,
-                    true
-                ).show();
-                return true
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
 
-   /* override fun onCreateOptionsMenu(menu: Menu): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_item, menu)
         /* val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
         (menu.findItem(R.id.search).actionView as SearchView).apply {
@@ -377,7 +454,7 @@ class HomeActivity : AppCompatActivity() {
         }*/
         // Inflate the menu; this adds items to the action bar if it is present.
         return true
-    }*/
+    }
 
 
 }

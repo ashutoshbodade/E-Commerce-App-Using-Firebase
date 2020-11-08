@@ -1,5 +1,5 @@
 package com.octalgroup.mobilegurushop.Adapter
-
+/*
 import com.octalgroup.mobilegurushop.Database.CartDataSource
 import com.octalgroup.mobilegurushop.Database.CartDatabase
 import com.octalgroup.mobilegurushop.Database.CartItem
@@ -305,4 +305,4 @@ class ProductAdapter(var c: Context, var list: ArrayList<ProductModel>) :
           }
         }
 
-}
+}*/
